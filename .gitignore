@@ -3,3 +3,8 @@
 *.bin
 *.elf
 tools/
+
+# Private research/ops notes (barracks locations, capture data, real MACs) -
+# kept local-only, never pushed to the public repo.
+CLAUDE.md
+PSP_FINDINGS.md

@@ -70,6 +70,7 @@ static const SsidEntry SSID_TABLE[] = {
     // batches mixed statewide, not two separate networks). Last observed
     // 2026-08-25 and 2026-09-05 - current as of this writing.
     { "PSP-MVR",  SSID_MATCH_PREFIX, "PSP in-car video",   CAT_BODYCAM, nullptr },
+    { "SP-MVR",   SSID_MATCH_PREFIX, "PSP paired virtual AP", CAT_OTHER,  nullptr },
 
     // Confirmed at all three sites above; tightest cross-site correlation
     // of the four rows. Dunmore: 20:37:06:6D:69:7D / 20:37:06:A4:2C:4D.

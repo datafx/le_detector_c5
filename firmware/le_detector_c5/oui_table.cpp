@@ -108,6 +108,7 @@ static const OuiEntry OUI_TABLE[] = {
   { { 0x00,0x12,0xE0,0x00,0x00 }, 24, "Codan",            CAT_RADIO,     SPEC_BROAD      },
   { { 0x00,0x14,0x3E,0x00,0x00 }, 24, "AirLink",          CAT_VEHICLE,   SPEC_BROAD      },
   { { 0x00,0x14,0x91,0x00,0x00 }, 24, "Codan Radio",      CAT_RADIO,     SPEC_BROAD      },
+  { { 0x00,0x15,0x94,0x00,0x00 }, 24, "BIXOLON",          CAT_OTHER,     SPEC_BROAD      },
   { { 0x00,0x16,0xED,0x00,0x00 }, 24, "Utility Inc",      CAT_BODYCAM,   SPEC_LE_ONLY    },
   { { 0x00,0x17,0x28,0x00,0x00 }, 24, "Selex Comms",      CAT_RADIO,     SPEC_BROAD      },
   { { 0x00,0x17,0x3D,0x00,0x00 }, 24, "Neology",          CAT_ALPR,      SPEC_BROAD      },
@@ -144,6 +145,7 @@ static const OuiEntry OUI_TABLE[] = {
 #endif
   { { 0x08,0x3C,0x03,0x00,0x00 }, 28, "Federal Signal",   CAT_LIGHTBAR,  SPEC_LE_ONLY    },
   { { 0x0C,0xBF,0x15,0x00,0x00 }, 24, "Genetec",          CAT_ALPR,      SPEC_BROAD      },
+  { { 0x0C,0xFE,0x7B,0x00,0x00 }, 24, "Vantiva",          CAT_VEHICLE,   SPEC_BROAD      },
 #ifndef EXCLUDE_VENDOR_MOTOROLA
   { { 0x10,0x74,0x6F,0x00,0x00 }, 24, "Motorola Sol",     CAT_RADIO,     SPEC_BROAD      },
 #endif

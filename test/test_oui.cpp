@@ -82,6 +82,11 @@ int main() {
     expect("L3 Mobile-Vision 38:73:EA:05", l3mv, "L3 MobileVis");
     expect("Redflex 00:30:7E",         redflex, "Redflex");
 
+    uint8_t bixolon[6] = {0x00,0x15,0x94,0x00,0x00,0x01};
+    uint8_t vantiva[6] = {0x0C,0xFE,0x7B,0x00,0x00,0x01};
+    expect("BIXOLON 00:15:94 (citation printer)", bixolon, "BIXOLON");
+    expect("Vantiva 0C:FE:7B (MDC router)",       vantiva, "Vantiva");
+
     printf("\n%s (%d failures)\n", fails ? "FAILURES PRESENT" : "ALL PASS", fails);
     return fails;
 }

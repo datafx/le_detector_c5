@@ -4,6 +4,10 @@
 *.elf
 tools/
 
+# arduino-cli --export-binaries output - leaks absolute build-machine paths
+# (username, home dir) into build.options.json and .map files.
+build/
+
 # Private research/ops notes (barracks locations, capture data, real MACs) -
 # kept local-only, never pushed to the public repo.
 CLAUDE.md

@@ -15,9 +15,7 @@ void alertSetBuzzer(bool on) {
 }
 
 void alertInit() {
-    pinMode(PIN_LED, OUTPUT);
     pinMode(PIN_BUZZER, OUTPUT);
-    digitalWrite(PIN_LED, LOW);
     alertSetBuzzer(false);
     s_state      = ALERT_CLEAR;
     s_phaseStart = millis();
@@ -37,12 +35,12 @@ static uint32_t rssiToPeriod(int16_t rssi) {
     return (uint32_t)((int32_t)FLASH_PERIOD_SLOW - (offset * range) / span);
 }
 
+// LED here is the screen border (drawn by ui.cpp via alertOutputOn()), not a
+// physical pin - this design has no separate alert LED.
 static void driveOutputs(bool on, uint32_t onElapsed) {
-    digitalWrite(PIN_LED, on ? HIGH : LOW);
-
-    // Buzzer shares the LED's phase, but is capped so a fast flash chirps
-    // rather than turning into a continuous tone. Muting silences only the
-    // buzzer - the LED keeps flashing as the visual cue.
+    // Buzzer shares the border flash's phase, but is capped so a fast flash
+    // chirps rather than turning into a continuous tone. Muting silences
+    // only the buzzer - the border keeps flashing as the visual cue.
     bool buzz = on && !s_muted && (onElapsed < BUZZER_MAX_ON_MS);
     alertSetBuzzer(buzz);
 }
@@ -61,7 +59,6 @@ void alertUpdate(const DetectorStatus& st, uint32_t holdMs) {
             s_state    = ALERT_CLEAR;
             s_outputOn = false;
             s_muted    = false;   // mute doesn't carry over to the next alert
-            digitalWrite(PIN_LED, LOW);
             alertSetBuzzer(false);
         }
         return;

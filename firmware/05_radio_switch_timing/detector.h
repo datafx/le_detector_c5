@@ -10,10 +10,6 @@
 // tagged SRC_WIFI - same evidentiary weight as an OUI hit on those frames.
 enum Source : uint8_t { SRC_BLE = 0, SRC_WIFI, SRC_PROBE };
 
-// Which radio band a match came from - meaningless for SRC_BLE (BAND_NONE),
-// since BLE only ever runs on 2.4GHz and isn't ambiguous the way WiFi is.
-enum WifiBand : uint8_t { BAND_NONE = 0, BAND_5G, BAND_2G };
-
 struct TrackedDevice {
     uint8_t      mac[6];
     int16_t      rssi;        // EMA-smoothed
@@ -22,7 +18,6 @@ struct TrackedDevice {
     const char*  vendor;
     GearCategory category;
     Source       source;
-    WifiBand     band;        // BAND_NONE when source == SRC_BLE
     char         ssid[33];    // NUL-terminated; empty when match wasn't SSID-based
     bool         used;
 };

@@ -24,44 +24,27 @@ static const uint8_t PIN_BUZZER   = 1;   // D0
 // 2.4 and 5 GHz simultaneously, and still cannot do WiFi and BLE at once.
 // So three phases, time-sliced, one radio stack up at a time.
 //
-// Reworked 2026-10-01 based on real drive data (Kismet, long highway drive)
-// and a measured radio-switch cost on this board: WiFi->BLE = 103ms,
-// BLE->WiFi = 9ms (perfectly consistent across 8 iterations, zero variance -
-// see firmware/05_radio_switch_timing). Switching is cheap, so the duty
-// cycle is driven by what's actually useful, not switch-cost avoidance:
-//
-// - 5 GHz is the only long-range, continuous signal (beacons every ~100ms,
-//   seen at Axon Fleet Hub range up to ~0.5mi in the drive data) and is
-//   therefore the dominant phase by a wide margin.
-// - BLE is short-range (~10m) and most useful for a stopped/slow/adjacent
-//   encounter, which is a multi-second situation, not a sub-second one - a
-//   fast highway pass is barely catchable at any reasonable scan frequency
-//   regardless, so BLE doesn't need to run every cycle. A short dip every
-//   few 5GHz sweeps is enough.
-// - 2.4 GHz contributes almost nothing on the road per the drive data
-//   (PSP-MVR/Cradlepoint-type hits are a fixed-barracks-proximity signal,
-//   not a mobile one) - kept only as a rare token check on the 3
-//   non-overlapping channels (1/6/11), not a full 1-11 sweep.
+// 5 GHz is weighted heaviest - the Axon Fleet Hub beacons continuously there
+// and is the primary target found in the investigation. Channel list is the
+// 9 non-DFS 5 GHz channels (36/40/44/48/149/153/157/161/165) rather than the
+// full 36-165 range - DFS channels (52-144) need radar-detection handling
+// this fork doesn't do yet, and every confirmed real-world target so far
+// (Axon Fleet Hub, general enterprise gear) sits on non-DFS channels anyway.
+// Revisit if that assumption doesn't hold up in the field.
 // ---------------------------------------------------------------------------
 static const uint8_t WIFI_5G_CHANNELS[]  = {36, 40, 44, 48, 149, 153, 157, 161, 165};
 static const uint8_t WIFI_5G_CHANNEL_COUNT = sizeof(WIFI_5G_CHANNELS) / sizeof(WIFI_5G_CHANNELS[0]);
-static const uint32_t WIFI_5G_PHASE_MS   = 2700;  // exactly one sweep of 9 channels at 300ms hop
+static const uint32_t WIFI_5G_PHASE_MS   = 4500;  // ~1.5 sweeps of 9 channels at 300ms hop
 static const uint32_t WIFI_5G_HOP_MS     = 300;
 
-// Non-overlapping US channels only - a token check for stationary facility
-// APs, not a mobile detection path. See note above.
-static const uint8_t WIFI_2G_CHANNELS[]  = {1, 6, 11};
-static const uint8_t WIFI_2G_CHANNEL_COUNT = sizeof(WIFI_2G_CHANNELS) / sizeof(WIFI_2G_CHANNELS[0]);
-static const uint32_t WIFI_2G_PHASE_MS    = 750;  // one pass of 3 channels at 250ms hop
+// US 2.4GHz WiFi is FCC-licensed on channels 1-11 only; 12-13 are ETSI-region
+// channels no US-market AP will legally beacon on, so scanning them is wasted
+// dwell time.
+static const uint8_t  WIFI_2G_MAX_CHANNEL = 11;
+static const uint32_t WIFI_2G_PHASE_MS    = 3000;  // ~1 full sweep of ch 1-11, plus slack
 static const uint32_t WIFI_2G_HOP_MS      = 250;
 
-static const uint32_t BLE_PHASE_MS        = 400;  // short dip, not a long window
-
-// How many 5GHz sweeps happen between a BLE dip / a 2.4GHz token visit.
-// Tune these empirically - the right split is still unknown, this is a
-// starting point based on the reasoning above, not a measured optimum.
-static const uint8_t BLE_EVERY_N_SWEEPS      = 3;
-static const uint8_t WIFI_2G_EVERY_N_SWEEPS  = 8;
+static const uint32_t BLE_PHASE_MS        = 3000;
 
 // Passive = receive only, we never transmit. Set false only if you
 // specifically want active BLE scanning (locked decision: stays passive).

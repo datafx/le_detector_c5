@@ -63,8 +63,8 @@ void uiBootScreen() {
     tft.println(line);
 
     tft.setCursor(MARGIN, MARGIN + 116);
-    snprintf(line, sizeof(line), "WiFi 5GHz: %u ch, 2.4GHz: 1-%u",
-             (unsigned)WIFI_5G_CHANNEL_COUNT, (unsigned)WIFI_2G_MAX_CHANNEL);
+    snprintf(line, sizeof(line), "WiFi 5GHz: %u ch, 2.4GHz: %u ch (token)",
+             (unsigned)WIFI_5G_CHANNEL_COUNT, (unsigned)WIFI_2G_CHANNEL_COUNT);
     tft.println(line);
 
     tft.setCursor(MARGIN, MARGIN + 140);
@@ -155,15 +155,19 @@ static void drawContent(const DetectorStatus& st) {
         tft.setCursor(MARGIN, contentTop + 10);
         tft.print(st.best->vendor);
 
-        // --- secondary line: what actually matched ---
+        // --- secondary line: what actually matched, and which radio/band -
+        // useful for troubleshooting, not just "it's an OUI hit" ---
         tft.setTextSize(2);
         tft.setCursor(MARGIN, contentTop + 70);
+        const char* band = (st.best->band == BAND_5G) ? "5GHz" :
+                            (st.best->band == BAND_2G) ? "2.4GHz" : "";
         if (st.best->ssid[0] != '\0') {
             const char* how = (st.best->source == SRC_PROBE) ? "probe" : "beacon";
-            snprintf(line, sizeof(line), "SSID %s: %s", how, st.best->ssid);
+            snprintf(line, sizeof(line), "SSID %s (%s): %s", how, band, st.best->ssid);
+        } else if (st.best->source == SRC_BLE) {
+            snprintf(line, sizeof(line), "via BLE");
         } else {
-            snprintf(line, sizeof(line), "via %s",
-                     (st.best->source == SRC_BLE) ? "BLE" : "WiFi OUI");
+            snprintf(line, sizeof(line), "via %s WiFi OUI", band);
         }
         tft.print(line);
 

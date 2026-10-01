@@ -36,11 +36,12 @@
 
 static TrackedDevice s_devices[MAX_TRACKED];
 static uint8_t       s_channel = 1;
-static uint8_t       s_channelIdx = 0;   // index into the active band's channel list
+static uint8_t       s_channelIdx = 0;   // index into WIFI_5G_CHANNELS when 5GHz is active
 static uint32_t      s_lastHop = 0;
 static uint16_t      s_seenTotal = 0;
 static uint32_t      s_lastHitMs = 0;
 
+enum WifiBand : uint8_t { BAND_5G, BAND_2G };
 static WifiBand s_band = BAND_5G;
 
 static bool s_wifiUp = false;
@@ -57,7 +58,7 @@ static bool s_bleUp  = false;
 // points at a stack buffer that doesn't outlive the calling frame.
 static void recordMatch(const uint8_t mac[6], int8_t rssi,
                         const char* vendor, GearCategory category,
-                        Source src, WifiBand band, const char* ssid = nullptr) {
+                        Source src, const char* ssid = nullptr) {
     uint32_t now = millis();
     s_lastHitMs = now;
 
@@ -94,7 +95,6 @@ static void recordMatch(const uint8_t mac[6], int8_t rssi,
     d.vendor    = vendor;
     d.category  = category;
     d.source    = src;
-    d.band      = band;
     if (ssid) {
         strncpy(d.ssid, ssid, sizeof(d.ssid) - 1);
         d.ssid[sizeof(d.ssid) - 1] = '\0';
@@ -186,7 +186,7 @@ static void IRAM_ATTR wifiSnifferCb(void* buff, wifi_promiscuous_pkt_type_t type
     // OUI match - meaningless on a randomised address, so skip it there.
     if (!(mac[0] & 0x02)) {
         const OuiEntry* oui = ouiLookup(mac);
-        if (oui) recordMatch(mac, ppkt->rx_ctrl.rssi, oui->vendor, oui->category, SRC_WIFI, s_band);
+        if (oui) recordMatch(mac, ppkt->rx_ctrl.rssi, oui->vendor, oui->category, SRC_WIFI);
     }
 
     // SSID match - runs regardless of address randomisation. A directed
@@ -206,7 +206,7 @@ static void IRAM_ATTR wifiSnifferCb(void* buff, wifi_promiscuous_pkt_type_t type
             // previously-joined network, not proof the AP is here now) -
             // beacons/probe responses mean the AP itself is transmitting.
             Source src = (subtype == 0x40) ? SRC_PROBE : SRC_WIFI;
-            recordMatch(mac, ppkt->rx_ctrl.rssi, hit->vendor, hit->category, src, s_band, ssid);
+            recordMatch(mac, ppkt->rx_ctrl.rssi, hit->vendor, hit->category, src, ssid);
         }
     }
 }
@@ -220,8 +220,7 @@ void detectorHopChannel() {
         s_channelIdx = (s_channelIdx + 1) % WIFI_5G_CHANNEL_COUNT;
         s_channel = WIFI_5G_CHANNELS[s_channelIdx];
     } else {
-        s_channelIdx = (s_channelIdx + 1) % WIFI_2G_CHANNEL_COUNT;
-        s_channel = WIFI_2G_CHANNELS[s_channelIdx];
+        s_channel = (s_channel >= WIFI_2G_MAX_CHANNEL) ? 1 : (s_channel + 1);
     }
     esp_wifi_set_channel(s_channel, WIFI_SECOND_CHAN_NONE);
     s_lastHop = now;
@@ -265,8 +264,7 @@ void detectorStartWifi2GPhase() {
 #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 4, 2)
     esp_wifi_set_band_mode(WIFI_BAND_MODE_2G_ONLY);
 #endif
-    s_channelIdx = 0;
-    s_channel = WIFI_2G_CHANNELS[0];
+    s_channel = 1;
     esp_wifi_set_channel(s_channel, WIFI_SECOND_CHAN_NONE);
 }
 
@@ -307,7 +305,7 @@ class DetectorAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
         uint8_t mac[6];
         memcpy(mac, advertisedDevice.getAddress().getNative(), 6);
         const OuiEntry* oui = ouiLookup(mac);
-        if (oui) recordMatch(mac, (int8_t)advertisedDevice.getRSSI(), oui->vendor, oui->category, SRC_BLE, BAND_NONE);
+        if (oui) recordMatch(mac, (int8_t)advertisedDevice.getRSSI(), oui->vendor, oui->category, SRC_BLE);
     }
 };
 

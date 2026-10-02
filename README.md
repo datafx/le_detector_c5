@@ -1,353 +1,246 @@
-# LE Gear Detector — ESP32-WROOM-32U
+# LE Gear Detector — XIAO ESP32-C5 Fork
 
-Passive BLE + WiFi scanner. Watches for MAC OUIs on a vendor watchlist and
-SSIDs on a second watchlist (beacons, probe requests, probe responses),
-signaling hits on an LED and buzzer, flashing faster as the signal strengthens.
+Passive 5GHz/2.4GHz WiFi + BLE scanner for law-enforcement equipment,
+rebuilt for the Seeed XIAO ESP32-C5 to add 5GHz detection. The original
+project ([`datafx/le_detector`](https://github.com/datafx/le_detector),
+ESP32-WROOM-32U) is 2.4GHz only and can't see the highest-value target
+found in the field: Axon Fleet Hub units broadcasting their own hidden APs
+on 5GHz. A match signals with a flashing red screen border + buzzer,
+faster as the signal strengthens.
 
-## Build
+## Hardware
 
-If you already have PlatformIO Core set up:
+| Part | Notes | Link |
+|---|---|---|
+| Seeed Studio XIAO ESP32-C5 | RISC-V, dual-band WiFi 6 (2.4+5GHz), BLE 5, USB-C | [Seeed Studio](https://www.seeedstudio.com/Seeed-Studio-XIAO-ESP32C5-p-6609.html) |
+| 2.8" ILI9341 TFT, SPI, 240×320, with XPT2046 touch + microSD slot | Standard combo board sold under many names; touch and SD are present on the board but not yet used by this firmware | search "2.8 inch ILI9341 SPI touch SD" |
+| Active buzzer module, 3-pin (VCC/GND/signal) | Must have its own driver transistor onboard. Confirmed **active-low** on this build — check `BUZZER_ACTIVE_LOW` in `config.h` against yours | search "active buzzer module 3 pin" |
+| Alfa APA-M25 dual-band antenna | 8 dBi @2.4GHz / 10 dBi @5GHz, RP-SMA | [Alfa Network](https://alfa-network.eu/apa-m25) |
+| U.FL → RP-SMA pigtail | Connects the XIAO's onboard U.FL to the external antenna | search "U.FL RP-SMA pigtail" |
+| Breadboard + jumper wires | | |
+| USB-C cable | Power + programming | |
 
-    pio run -t upload
-    pio device monitor
-
-### Building from source if you're new to PlatformIO
-
-1. **Install PlatformIO.** Pick whichever fits how you like to work:
-   - **VS Code** (recommended if you'd rather not touch a terminal beyond
-     the basics): install [VS Code](https://code.visualstudio.com/), then
-     install the **PlatformIO IDE** extension from the Extensions panel
-     (search "platformio"). It downloads everything else it needs the
-     first time it runs — that can take a few minutes.
-   - **Command line:** install Python 3 if you don't already have it, then:
-
-         pip install --user platformio
-
-     (`pipx install platformio` works too, if that's your preference.)
-
-2. **Get the code:**
-
-         git clone https://github.com/datafx/le_detector.git
-         cd le_detector
-
-   No `git`? Click **Code → Download ZIP** on the GitHub page and extract
-   it instead.
-
-3. **Open the project.**
-   - VS Code: **File → Open Folder**, select the `le_detector` folder.
-     PlatformIO reads `platformio.ini` and configures itself for this
-     project automatically — nothing to set up by hand.
-   - Command line: just stay inside the `le_detector` directory; every
-     `pio` command below assumes that's your working directory.
-
-4. **Plug in the board** via micro-USB. Chip type, flash size, and the
-   partition table are already specified in `platformio.ini`, so there's
-   no board selection step.
-
-5. **Build and flash:**
-   - VS Code: click the checkmark icon in the bottom status bar to build,
-     then the right-arrow (→) icon to build *and* upload.
-   - Command line:
-
-         pio run -t upload
-
-   This should auto-detect the board and flash it without pressing
-   anything on the board itself — the DevKitC's onboard USB-serial chip
-   handles the reset. If upload fails with a timeout or "Failed to
-   connect": hold **BOOT**, tap **EN**, release **BOOT**, then retry (see
-   Gotchas in `CLAUDE.md` for why this is sometimes needed).
-
-6. **Watch it boot** (optional):
-
-         pio device monitor
-
-   This project doesn't do serial logging during normal operation — a
-   deliberate design choice, see `CLAUDE.md` — so past the initial boot
-   banner you won't see a running stream of output. That's expected, not
-   a sign something's broken; the OLED is the real status display.
-
-### If the board doesn't show up as a serial port
-
-- **Windows/macOS:** you may need the [CP210x USB-to-UART
-  driver](https://www.silabs.com/developer-tools/usb-to-uart-bridge-vcp-drivers)
-  from Silicon Labs — that's the DevKitC's onboard USB chip.
-- **Linux:** the port usually appears automatically (typically
-  `/dev/ttyUSB0`), but your user may need group membership to access it
-  without `sudo` — `dialout` on Debian/Ubuntu, `uucp` on Arch-based
-  distros. Add yourself and re-log-in for it to take effect:
-
-      sudo usermod -aG dialout $USER   # or: uucp, on Arch-based distros
+The display, buzzer, and pigtail are generic commodity parts sold by many
+sellers under many names — there's no single canonical listing worth
+linking (and one that works today can vanish tomorrow), so a search term
+is given instead of a storefront link.
 
 ## Wiring
 
-| Signal | Pin | Header |
-|---|---|---|
-| OLED SDA | GPIO21 | J3 pin 6 |
-| OLED SCL | GPIO22 | J3 pin 3 |
-| Alert LED (+270R) | GPIO25 | J2 pin 9 |
-| Buzzer SIG | GPIO26 | J2 pin 10 |
+Pin assignments confirmed against the physical board — see `CLAUDE.md`
+decision #6 for the full reasoning, including which pins were deliberately
+avoided and why (boot-strap pins, reserved for a future GPS UART, etc.).
 
-Power via micro-USB. EN is left unwired.
+| Signal | XIAO pin | GPIO | Notes |
+|---|---|---|---|
+| Display `VCC` | `5V` | — | needs the 5V/VBUS pin specifically, not `3V3` |
+| Display `GND` | `GND` | — | |
+| Display `LED` (backlight) | `5V` | — | tied permanently on |
+| Display `CS` | `D2` | 25 | |
+| Display `DC` | `D3` | 7 | |
+| Display `RESET` | `D4` | 23 | |
+| Display `SDI`/MOSI | `D10` | 10 | shared SPI bus |
+| Display `SCK` | `D8` | 8 | shared SPI bus |
+| Display `SDO`/MISO | `D9` | 9 | shared SPI bus |
+| `SD_CS` | `D5` | 24 | wired and reserved — SD support isn't built yet |
+| `SD_MOSI`/`SD_MISO`/`SD_SCK` | `D10`/`D9`/`D8` | 10/9/8 | shared with the display |
+| Buzzer `VCC` | `3V3` | — | |
+| Buzzer `GND` | `GND` | — | |
+| Buzzer signal | `D0` | 1 | |
 
-## Parts list
+Touch (`T_CLK`/`T_CS`/`T_DIN`/`T_DO`/`T_IRQ`) is present on the display
+board but intentionally unwired — planned for future bench-configuration
+tooling, not for driving controls.
 
-| Part | Notes |
-|---|---|
-| ESP32-WROOM-32U DevKitC (38-pin) | The `-U` variant — external antenna via U.FL, not the PCB-antenna `-D` variant |
-| SSD1306 128x64 OLED, I2C | Any standard 4-pin (GND/VCC/SCL/SDA) module |
-| LED, any color | + 270R resistor, GPIO25 to GND |
-| Active buzzer module, 3.3–5V | Must be an *active* module (built-in oscillator, just needs a logic level), not passive/piezo. Check `BUZZER_ACTIVE_LOW` in `config.h` against your specific module — some trigger on LOW (see Gotchas below) |
-| U.FL → RP-SMA pigtail | Connects the WROOM-32U's onboard U.FL to an external antenna |
-| Alfa APA-M25 (8 dBi directional panel) or equivalent 2.4 GHz antenna | RP-SMA connector |
-| Breadboard + jumper wires | Or a PCB — see the EN-pin note below if you're laying one out |
-| Micro-USB cable | Power + programming; no external supply needed |
+## Build & flash
 
-No 5V rail needed anywhere — the buzzer runs off the same 3V3 the DevKitC
-outputs on J2 pin 1, and everything else is 3.3V logic.
+PlatformIO has no ESP32-C5 support as of this writing — this project
+builds via the Arduino IDE / `arduino-cli` instead.
 
-**Building a PCB instead of breadboarding?** Add a 100nF–1µF ceramic
-capacitor between EN and GND. The reference build runs EN bare (just its
-onboard pull-up) and hit a burst of spurious resets that pointed at EN-pin
-noise on the breadboard's high-impedance wiring — see the reset-loop note in
-`CLAUDE.md` for the full writeup. The cap is cheap, standard practice on
-ESP32 designs, and worth including on a PCB layout regardless of whether
-that was the actual cause on the breadboard.
+### Arduino IDE
+
+1. **Install the ESP32 board package.** File → Preferences → Additional
+   Boards Manager URLs, add:
+
+       https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+
+   Then Tools → Board → Boards Manager, search "esp32", install **esp32 by
+   Espressif Systems**, version **3.3.5 or higher** (built and tested
+   against 3.3.11).
+
+2. **Select the board:** Tools → Board → esp32 → **XIAO_ESP32C5**.
+
+3. **Install libraries** via Library Manager: `Adafruit GFX Library`,
+   `Adafruit BusIO`, `Adafruit ILI9341`. BLE support is bundled with the
+   esp32 core itself — no separate BLE library install needed.
+
+4. **Open the sketch:** `firmware/le_detector_c5/le_detector_c5.ino`.
+   Every `.cpp`/`.h` file in that same folder is compiled and linked
+   automatically — Arduino sketches don't use PlatformIO's `src`/`include`
+   split, so everything lives flat in one folder.
+
+5. **Plug in the board** via USB-C, select its port, and upload.
+
+### arduino-cli
+
+    arduino-cli core update-index
+    arduino-cli config set board_manager.additional_urls https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+    arduino-cli core install esp32:esp32@3.3.11
+    arduino-cli lib install "Adafruit GFX Library" "Adafruit ILI9341"
+    arduino-cli compile --fqbn esp32:esp32:XIAO_ESP32C5 firmware/le_detector_c5
+    arduino-cli upload -p /dev/ttyACM0 --fqbn esp32:esp32:XIAO_ESP32C5 firmware/le_detector_c5
+
+### If upload fails, or the board doesn't show up as a serial port
+
+The C5 uses its SoC's own native USB-Serial/JTAG peripheral, not a separate
+USB-serial chip — no CH340/CP210x driver needed — but that comes with its
+own gotchas, all hit and resolved during this project's own bring-up:
+
+- **Linux: the `cdc_acm` kernel module.** If `/dev/ttyACM0` never appears,
+  check `lsmod | grep cdc_acm`; if missing, `sudo modprobe cdc_acm` (if
+  *that* fails with "module not found," your running kernel doesn't match
+  what's installed on disk — reboot). Your user also needs permission on
+  the port: group `dialout` on Debian/Ubuntu, `uucp` on Arch-based distros.
+- **Upload fails with "Invalid head of packet" or "Serial data stream
+  stopped: possible serial noise or corruption."** Looks like a code or
+  board problem, usually isn't — a USB hub between the board and the
+  computer was the actual cause here. Plug directly into a root/motherboard
+  port before suspecting anything else.
+- **No serial monitor output.** `arduino-cli monitor` produced nothing in
+  testing even with the board clearly running. On Linux, plain
+  `cat /dev/ttyACM0` worked reliably instead, and conveniently triggers a
+  fresh reset on open. This firmware doesn't print anything during normal
+  operation anyway (the display is the real status output), so this mostly
+  matters if you're debugging.
 
 ## Watchlist
 
-65 IEEE-registered prefixes across 40+ law-enforcement equipment vendors (63
-compiled in by default — see below). Any match on the list alerts the same
-way — there's no confidence tier, since a weak signal still needs a reaction.
-Each entry is tagged by how exclusively its vendor sells to LE (**LE-only**
-vs **broad**, meaning it also ships on large volumes of civilian gear) purely
-as curation info: broad vendors that turn out to be a false-positive source
-get compiled out entirely (see the `EXCLUDE_VENDOR_*` toggles in
-`oui_table.cpp` — CradlePoint is off by default for exactly this reason)
-rather than downgraded.
+**62 OUI entries** across law-enforcement radio, body/dash cam, vehicle
+router/MDT, radar/lidar, ALPR, and lightbar equipment, plus **6 SSID
+patterns** (5 real + one test/demo row). The full list, provenance, and
+vendor-collision reasoning live as comments in the source files themselves
+— those are what actually runs, so they're the version that can't drift out
+of sync with reality:
 
-Supports /24 (MA-L), /28 (MA-M) and /36 (MA-S) assignments. Prefixes shown with
-a trailing `N_` are sub-/24 blocks where only the high nibble of the next byte is
-significant. Keep the array sorted ascending; lookup is a binary search. Run
-`test/test_oui.cpp` after edits.
+- [`oui_table.cpp`](firmware/le_detector_c5/oui_table.cpp) — MAC OUI
+  watchlist
+- [`ssid_table.cpp`](firmware/le_detector_c5/ssid_table.cpp) — SSID
+  watchlist (beacons, probe requests, probe responses)
 
-Don't want a specific entry? Just comment out its row in `oui_table.cpp` —
-removing a row can't break the sort order, so no rebuild flag or macro is
-needed. Want to add one locally before submitting it upstream? Drop it in
-`user_oui_table.cpp` instead, which is unsorted and just appended to.
+A few vendors are **disabled by default** after field testing showed they
+false-positive more than they help — commented out, not deleted, so each
+is one edit away from re-enabling if that read ever turns out wrong:
+**CradlePoint**, **Peplink**, **Pepwave**, **Vantiva**, **PRO-VISION**.
+Comment a row back in (or out) to change what's active for most entries;
+CradlePoint specifically is gated by an `EXCLUDE_VENDOR_CRADLEPOINT` toggle
+at the top of `oui_table.cpp`. Run `test/test_oui.cpp` after any edit.
 
-### Complete list
+Want to test a local addition before submitting it upstream? Drop it in
+`user_oui_table.cpp` instead — unsorted, just appended to.
 
-| Prefix | Vendor | Category | Specificity |
-|---|---|---|---|
-| `00:00:C3` | Harris | Radio | broad |
-| `00:04:7D` | Motorola Sol | Radio | broad |
-| `00:06:EC` | Harris | Radio | broad |
-| `00:08:B8` | EF Johnson | Radio | LE-only |
-| `00:09:BC` | Utility Inc | Body/car cam | LE-only |
-| `00:0A:3E` | EADS Telecom | Radio | broad |
-| `00:0D:4F` | Kenwood | Radio | broad |
-| `00:0D:CA` | Tait | Radio | broad |
-| `00:0E:06` | Team Simoco | Radio | broad |
-| `00:12:E0` | Codan | Radio | broad |
-| `00:14:3E` | AirLink | Veh router | broad |
-| `00:14:91` | Codan Radio | Radio | broad |
-| `00:16:ED` | Utility Inc | Body/car cam | LE-only |
-| `00:17:28` | Selex Comms | Radio | broad |
-| `00:17:3D` | Neology | Plate reader | broad |
-| `00:17:F3` | Harris | Radio | broad |
-| `00:18:85` | Motorola Sol | Radio | broad |
-| `00:1A:08` | Simoco | Radio | broad |
-| `00:1C:3C` | Seon Design | Body/car cam | LE-only |
-| `00:1D:96` | WatchGuard Vid | Body/car cam | LE-only |
-| `00:1E:96` | Sepura | Radio | broad |
-| `00:1F:92` | Motorola Sol | Radio | broad |
-| `00:1F:9C` | Havis | Veh router | broad |
-| `00:22:AF` | Safety Vision | Body/car cam | broad |
-| `00:23:B9` | Airbus D&S | Radio | broad |
-| `00:23:BD` | Digital Ally | Body/car cam | LE-only |
-| `00:24:39` | Digital Barr | Body/car cam | LE-only |
-| `00:24:E6` | In Motion Tech | Veh router | broad |
-| `00:25:DF` | Axon | Body/car cam | LE-only |
-| `00:26:B3` | Thales | Radio | broad |
-| `00:30:44` | CradlePoint | Veh router | broad |
-| `00:30:7E` | Redflex | Plate reader | LE-only |
-| `00:90:C7` | Icom | Radio | broad |
-| `00:A0:D5` | Sierra Wireless | Veh router | broad |
-| `00:BF:15` | Genetec | Plate reader | broad |
-| `00:E0:1C` | CradlePoint | Veh router | broad |
-| `08:3C:03:0_` | Federal Signal | Lightbar | LE-only |
-| `0C:BF:15` | Genetec | Plate reader | broad |
-| `10:74:6F` | Motorola Sol | Radio | broad |
-| `1C:82:59:D_` | Stalker Radar | Radar | LE-only |
-| `28:A3:31` | Sierra Wireless | Veh router | broad |
-| `38:73:EA:0_` | L3 MobileVis | Body/car cam | LE-only |
-| `48:46:8D` | Zepcam | Body/car cam | LE-only |
-| `4C:CC:34` | Motorola Sol | Radio | broad |
-| `50:13:9D` | Sierra Wireless | Veh router | broad |
-| `58:94:CF` | Vertex Std LMR | Radio | broad |
-| `58:E8:76:C_` | Kustom Signals | Radar | LE-only |
-| `64:69:BC` | Hytera | Radio | broad |
-| `64:CE:6E` | Sierra Wireless | Veh router | broad |
-| `68:DA:73:B_` | Gamber-Johnson | Veh router | broad |
-| `6C:18:11` | Decatur Elec | Radar | LE-only |
-| `70:B3:D5:1C:5_` | ELSAG | Plate reader | LE-only |
-| `70:B3:D5:88:A_` | Perceptics | Plate reader | LE-only |
-| `84:DB:2F` | Sierra Wireless | Veh router | broad |
-| `9C:06:6E` | Hytera | Radio | broad |
-| `9C:83:BF` | PRO-VISION | Body/car cam | LE-only |
-| `9C:86:2B` | Motorola Sol | Radio | broad |
-| `A8:C0:EA` | Pepwave | Veh router | broad |
-| `B8:E2:8C` | Motorola Sol | Radio | broad |
-| `BC:AD:90` | Kymeta | Veh router | broad |
-| `CC:93:4A` | Sierra Wireless | Veh router | broad |
-| `D4:13:F8` | Peplink | Veh router | broad |
-| `E0:DA:DC` | JVC Kenwood | Radio | broad |
-| `E4:1E:0A:B_` | Safety Vision | Body/car cam | broad |
-| `FC:01:9E` | VieVu | Body/car cam | LE-only |
+### SSID watchlist
 
-### Provenance
-
-Every prefix is an IEEE MA-L/MA-M/MA-S assignment, verified against the
-registrant's street address (not vendor-name guesses) via an IEEE registry
-sweep for known LE equipment makers.
-
-### Deliberately excluded
-
-- **Dell, Panasonic / Panasonic Connect** — Toughbook/laptop MDTs are ubiquitous
-  patrol gear, but these prefixes sit on tens of millions of consumer machines,
-  so a hit carries no information.
-- **WatchGuard Technologies** (`00:01:21`, `00:90:7F`) — Seattle firewall vendor,
-  unrelated to WatchGuard Video (Plano TX, police video), which *is* included.
-- **Coban SRL** (Italy) — not COBAN Technologies (Houston police video), which has
-  no IEEE assignment.
-- **TAIT Global LLC** (Lititz PA) — not Tait Electronics (NZ radios), which is
-  included.
-- Peplink/Pepwave and similar vehicle-router vendors are included but kept at the
-  broad tier for the same reason as Sierra Wireless/CradlePoint.
-
-### Still absent from IEEE entirely
-
-Whelen, Code 3, SoundOff Signal, MPH Industries, Getac, and COBAN Technologies
-(Houston) have no IEEE assignments — most lightbars and many radar heads aren't
-IP devices at all, so there's nothing to match on.
-
-## SSID watchlist
-
-Independent signal from the OUI table, matched against beacon, probe
-request, and probe response frames. A client configured for a hidden
-network sends its target SSID in cleartext in a directed probe request —
-an 802.11 protocol requirement, not a configuration choice — so this
-survives MAC address randomisation, a hard limit on OUI matching (see
-Known limits below). It's also strictly better evidence than a bare OUI hit
-when it fires on a beacon: a CradlePoint OUI just means "some CradlePoint
-router," a matched `IBR900-`/`IBR1700-` SSID says which model.
-
-Each entry picks a match mode — **prefix** (`IBR900-` matches
-`IBR900-1A2B3C`), **substring** (matches anywhere in the SSID), or
-**prefix+substring** (a prefix *and* a second required substring
-somewhere after it, e.g. pattern `IBR` + required substring `-mobile`
-matches `IBR900-fleet-mobile12` but not `IBR900-fleet` alone — the
-two-fragment-with-a-gap shape a glob would write as `IBR*-mobile`) — and
-matching is case-insensitive. There's no literal wildcard character or
-regex engine, just these three fixed shapes. No IEEE-registry equivalent
-exists for SSIDs; every real row should come from an actual field
-capture (WiGLE surveys, on-site logging), not a guess.
-
-A probe-request hit is weaker evidence than a beacon/probe-response hit —
-a client leaking a network it previously joined isn't proof that network's
-AP is nearby now — so the two are tagged differently on the display
-(`SSID probe: <name>` vs `SSID beacon: <name>`), though both alert the
-same way.
-
-Ships with one live row, `LEDET-TEST`, which is test/demo data, not a real
-vendor signature — labeled as such in the source, in this doc, and in the
-vendor string itself, so it's unmistakable if it ever fires on the OLED.
-Spoof it by renaming a phone hotspot or a saved WiFi profile to
-`LEDET-TEST` to exercise the whole detection/display/alert path without
-needing real LE gear nearby. Comment it out in `ssid_table.cpp` before
-relying on this table for anything real; real entries follow the same
-"comment out a row to disable" convention as the OUI table.
-
-### Complete list
-
-| Prefix | Vendor | Category |
+| Pattern | Label | Category |
 |---|---|---|
-| `PSP-MVR`  | PSP in-car video   | Body/car cam |
-| `PSP-TEST` | PSP facility       | Other |
-| `PSPWLAN`  | PSP facility       | Other |
-| `PSP_UC`   | PSP facility voice | Other |
+| `PSP-MVR`    | PSP in-car video          | Body/car cam |
+| `SP-MVR`     | PSP paired virtual AP     | Other |
+| `PSP-TEST`   | PSP facility              | Other |
+| `PSPWLAN`    | PSP facility              | Other |
+| `PSP_UC`     | PSP facility voice        | Other |
+| `LEDET-TEST` | TEST/DEMO — not real gear | Other |
 
-All four are prefix matches, deliberately — not substring. A substring
-`PSP` rule tested against the same survey data matched `PSPPetCenter`,
-`PSPRETAIL`, `PSP Neighbor` (a residence), and `BPSPictureU`, all within
-730 m of the Hamburg barracks below. The full prefix string, not the
-shared `PSP` fragment, is what makes these safe to alert on.
+All PSP rows are prefix matches, deliberately — a substring `CONTAINS
+"PSP"` rule tested against real survey data matched several unrelated
+civilian networks near the same facilities (a pet store, a retailer, a
+private residence). The full prefix string, not the shared `PSP` fragment,
+is what makes these safe to alert on. Same logic for `SP-MVR` vs.
+`PSP-MVR`: kept as two explicit rows rather than one `CONTAINS "SP-MVR"`
+rule, which would also match `PSP-MVR` (it contains "SP-MVR" as a
+substring).
 
-### Provenance
+**Provenance:** confirmed via WiGLE survey data cross-checked against
+three independent Pennsylvania State Police barracks in three different
+troops, roughly 280km apart, all on matching Cisco hardware.
+`PSP-MVR`/`SP-MVR` (Mobile Video Recorder, PSP's in-car video system) and
+`PSP-TEST` were confirmed at all three sites; cross-site BSSID correlation
+— matching Cisco OUI sub-ranges across independently surveyed locations,
+not just a shared naming convention — confirms a single statewide
+deployment, not coincidence. `PSPWLAN`/`PSP_UC` were observed at one site
+only, so carry lower confidence until cross-checked elsewhere. Exact survey
+locations and dates are kept in local, non-public notes rather than this
+file.
 
-Confirmed via WiGLE survey data cross-checked against known Pennsylvania
-State Police barracks coordinates — three independent barracks spanning
-282 km across three different troops, every observation 48–132 m from the
-building, all on Cisco hardware:
+**Known limitation:** these are fixed APs at barracks buildings, not
+vehicle-mounted equipment. A hit on the road means a cruiser's in-car
+client is directedly probing for one of these SSIDs while out of range of
+the real AP — whether PSP in-car systems actually do that is untested in
+the field. Treat a hit here as barracks-proximity, not confirmed mobile
+detection, until that's verified.
 
-| Barracks | Troop | Coordinates |
-|---|---|---|
-| Hamburg | L | 40.5641, -76.0025 |
-| Dunmore (Scranton area) | — | 41.4357, -75.6151 |
-| Bedford | G | 40.0063, -78.3855 |
+## How detection works
 
-`PSP-MVR` and `PSP-TEST` were each confirmed at all three sites above.
-Cross-site BSSID correlation — matching Cisco OUI and sub-range
-assignments across independently surveyed barracks, not just a shared
-naming convention — confirms a single statewide deployment rather than
-coincidence. `PSP-MVR` (Mobile Video Recorder, PSP's in-car video system)
-is the highest-value row, since cruisers are configured for it by
-definition, and was last observed 2026-08-25 and 2026-09-05 — current as
-of this writing. `PSPWLAN` and `PSP_UC` were observed at Hamburg only, so
-carry lower confidence than the other two until cross-checked against a
-second site.
+A three-band phase machine — only one of WiFi-5GHz / WiFi-2.4GHz / BLE can
+be up at a time (one radio behind a dual-band diplexer, and it can't do
+WiFi and BLE simultaneously either). Scheduling is 5GHz-dominant, based on
+real drive data and a measured radio-switch cost on this specific board:
 
-**Known limitation**: these are fixed APs at barracks buildings, not
-vehicle-mounted equipment. On the road, a hit here means a cruiser's
-in-car client is directedly probing for one of these SSIDs while out of
-range of the real AP — whether PSP in-car systems actually do that is
-**untested in the field**. Treat a hit on this block as a
-barracks-proximity indicator, not confirmed mobile detection, until
-that's verified.
+- **5GHz** sweeps continuously (9 non-DFS channels, ~2.7s/sweep) — the
+  only long-range, continuous signal (beacons every ~100ms), and the
+  primary detection path.
+- **BLE** gets a short 400ms dip every 3rd 5GHz sweep, not every cycle —
+  its realistic job is a close/stopped encounter lasting several seconds,
+  not a sub-second highway pass, so it doesn't need constant attention.
+- **2.4GHz** gets a brief 3-channel token check (1/6/11 only) every 8th
+  sweep — contributes almost nothing on the road per the drive data (a
+  barracks-proximity signal, not a mobile one), kept only as an occasional
+  check.
+
+Measured WiFi↔BLE switch cost on this board: **103ms** to switch into BLE,
+**9ms** back out, with zero measured variance across repeated runs. See
+[`firmware/05_radio_switch_timing/`](firmware/05_radio_switch_timing/) to
+re-measure on different hardware. The "every N sweeps" cadence constants
+(`BLE_EVERY_N_SWEEPS`, `WIFI_2G_EVERY_N_SWEEPS` in `config.h`) are starting
+points to tune empirically, not a measured optimum.
+
+A match's alert shows which band/radio caught it — e.g. "via 5GHz WiFi
+OUI" or "SSID beacon (2.4GHz): PSP-MVR" — useful for telling a long-range
+hit apart from a close BLE encounter at a glance.
 
 ## Known limits
 
-- **One radio.** WiFi and BLE cannot run at once. The firmware alternates
-  (`WIFI_PHASE_MS` / `BLE_PHASE_MS`); during each window it is blind to the other.
-- **MAC randomisation.** Only public BLE addresses and non-randomised WiFi MACs
-  carry a real OUI. Randomised addresses are skipped — their vendor bits are
-  meaningless. This limits how much is detectable regardless of watchlist size.
-  SSID matching runs independently of this and is unaffected.
+- **One radio, three bands, time-sliced.** Only one of 5GHz WiFi / 2.4GHz
+  WiFi / BLE is ever listening — during any other phase, that band is
+  invisible. See "How detection works" above for the current schedule.
+- **MAC randomisation.** Only public BLE addresses and non-randomised WiFi
+  MACs carry a real OUI — randomised addresses are skipped, since their
+  vendor bits are meaningless. SSID matching runs independently of this
+  and is unaffected.
 - **PSP SSID rows are barracks-proximity, not confirmed mobile detection.**
-  All four are fixed APs at barracks buildings — see SSID watchlist
-  Provenance above for the full caveat and why.
+  See SSID watchlist provenance above.
 - **SSID matching depends on what's actually broadcast.** A wildcard probe
-  request or a hidden-SSID beacon carries no SSID bytes at all — nothing to
-  match either way. Directed probe requests specifically are a declining
-  signal: modern phone OSes (iOS/Android, roughly 2014-2017 onward) mostly
-  suppress them (randomised MAC + wildcard probes only), so this
-  increasingly only catches older/embedded clients, not phones.
-  Beacon/probe-response SSID matching is unaffected by that trend.
-- Repeated WiFi/BLE stack init+deinit every few seconds is necessary given the
-  single shared radio, but watch for heap fragmentation on long runs.
+  or hidden-SSID beacon carries no SSID bytes at all — nothing to match
+  either way. Directed probe requests are a declining signal on modern
+  phones (randomised MAC + wildcard probes only, roughly iOS/Android 2014-
+  2017 onward), so this increasingly only catches older/embedded clients.
+  Beacon/probe-response matching is unaffected by that trend.
+- **No SD card support yet.** The display board has a microSD slot and the
+  select pin (`SD_CS`) is wired, but CSV-based config/logging isn't built —
+  the firmware runs entirely on its compiled-in tables for now.
 
 ## Tuning
 
-Everything lives in `include/config.h`: phase lengths, channel dwell,
-flash-rate endpoints (`RSSI_WEAK`/`RSSI_STRONG`, `FLASH_PERIOD_SLOW`/`FAST`),
-alert hold time, and `BUZZER_ENABLED` for silent bench testing.
+Everything lives in `firmware/le_detector_c5/config.h`: band/channel
+lists, sweep cadence, flash-rate endpoints (`RSSI_WEAK`/`RSSI_STRONG`,
+`FLASH_PERIOD_SLOW`/`FAST`), alert hold time, and `BUZZER_ENABLED` for
+silent bench testing.
 
 ## License
 
 GPLv3 (see `LICENSE`), matching the companion `rf_stalker` and
-`police_oui_watchlist` projects.
+`police_oui_watchlist` projects, and the upstream `le_detector` project
+this is forked from.
 
-`src/detector.cpp` and `src/main.cpp` carry their own
-`SPDX-License-Identifier: MIT` line for portions adapted from third-party
-code — see the header comment in each file for attribution, what was
-adapted, and what changed. Everything else in this repo is GPLv3.
+[`firmware/le_detector_c5/detector.cpp`](firmware/le_detector_c5/detector.cpp)
+carries its own `SPDX-License-Identifier: MIT` line for the portions
+adapted from nyanBOX — see the header comment in that file for exactly
+what was adapted and what changed. Everything else in this repo is GPLv3.

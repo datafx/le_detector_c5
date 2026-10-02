@@ -39,15 +39,15 @@
 static const SsidEntry SSID_TABLE[] = {
     // -----------------------------------------------------------------
     // PENNSYLVANIA STATE POLICE (PSP) - added 2026-09-06 from WiGLE survey
-    // data cross-checked against known PSP barracks coordinates.
+    // data cross-checked against known PSP barracks locations. Exact
+    // locations/coordinates are kept in local, non-public notes rather
+    // than here.
     //
-    // Three independent barracks, three different troops, 282 km apart:
-    //   Hamburg  (Troop L)        40.5641, -76.0025
-    //   Dunmore  (Scranton area)  41.4357, -75.6151
-    //   Bedford  (Troop G)        40.0063, -78.3855
-    // All observations were 48-132 m from the barracks building, all on
-    // Cisco hardware. Cross-site BSSID correlation (see per-row notes)
-    // confirms a single statewide deployment, not coincidental naming.
+    // Three independent barracks, three different troops, ~282 km apart.
+    // All observations were within about 50-130 m of the barracks
+    // building, all on Cisco hardware. Cross-site BSSID correlation (see
+    // per-row notes) confirms a single statewide deployment, not
+    // coincidental naming.
     //
     // KNOWN LIMITATION: these are fixed APs at barracks buildings, not
     // vehicle-mounted. On the road, a hit here means a cruiser's in-car
@@ -59,9 +59,9 @@ static const SsidEntry SSID_TABLE[] = {
     // All four rows are PREFIX, deliberately - do not change any to
     // CONTAINS. A CONTAINS "PSP" rule was tested against the same survey
     // data and matched PSPPetCenter, PSPRETAIL, PSP Neighbor (a residence),
-    // and BPSPictureU, all within 730 m of the Hamburg barracks. The full
-    // prefix string, not the shared "PSP" fragment, is what makes these
-    // safe to alert on.
+    // and BPSPictureU, all within a few hundred meters of one of the
+    // barracks. The full prefix string, not the shared "PSP" fragment, is
+    // what makes these safe to alert on.
 
     // Confirmed at all three sites above. Highest-value row: MVR is Mobile
     // Video Recorder, PSP's in-car video system, so cruisers are configured
@@ -73,17 +73,16 @@ static const SsidEntry SSID_TABLE[] = {
     { "SP-MVR",   SSID_MATCH_PREFIX, "PSP paired virtual AP", CAT_OTHER,  nullptr },
 
     // Confirmed at all three sites above; tightest cross-site correlation
-    // of the four rows. Dunmore: 20:37:06:6D:69:7D / 20:37:06:A4:2C:4D.
-    // Bedford: 20:37:06:6D:72:0D / 20:37:06:A4:38:4D. Same two 20:37:06
-    // sub-ranges at both sites, both registered 2013.
+    // of the four rows. Same two 20:37:06 sub-ranges (registered 2013)
+    // seen across multiple independent sites, not just one.
     { "PSP-TEST", SSID_MATCH_PREFIX, "PSP facility",       CAT_OTHER,   nullptr },
 
-    // Single-site only (Hamburg) - lower confidence than PSP-MVR/PSP-TEST
-    // above, which were each confirmed at three independent barracks. Not
-    // yet cross-checked against a second site.
+    // Single-site only - lower confidence than PSP-MVR/PSP-TEST above,
+    // which were each confirmed at three independent barracks. Not yet
+    // cross-checked against a second site.
     { "PSPWLAN",  SSID_MATCH_PREFIX, "PSP facility",       CAT_OTHER,   nullptr },
 
-    // Single-site only (Hamburg), same caveat as PSPWLAN above - not yet
+    // Single-site only, same caveat as PSPWLAN above - not yet
     // cross-checked against a second site. Likely a Cisco Unified
     // Communications (voice/VoIP) SSID, going by the name.
     { "PSP_UC",   SSID_MATCH_PREFIX, "PSP facility voice", CAT_OTHER,   nullptr },

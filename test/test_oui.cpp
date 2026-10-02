@@ -84,8 +84,10 @@ int main() {
 
     uint8_t bixolon[6] = {0x00,0x15,0x94,0x00,0x00,0x01};
     uint8_t vantiva[6] = {0x0C,0xFE,0x7B,0x00,0x00,0x01};
+    uint8_t provision[6] = {0x9C,0x83,0xBF,0x00,0x00,0x01};
     expect("BIXOLON 00:15:94 (citation printer)", bixolon, "BIXOLON");
-    expect("Vantiva 0C:FE:7B (MDC router)",       vantiva, "Vantiva");
+    expect("Vantiva 0C:FE:7B (disabled - school bus falsing)", vantiva, nullptr);
+    expect("PRO-VISION 9C:83:BF (disabled - school bus falsing)", provision, nullptr);
 
     printf("\n%s (%d failures)\n", fails ? "FAILURES PRESENT" : "ALL PASS", fails);
     return fails;

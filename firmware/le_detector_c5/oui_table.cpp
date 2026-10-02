@@ -145,7 +145,8 @@ static const OuiEntry OUI_TABLE[] = {
 #endif
   { { 0x08,0x3C,0x03,0x00,0x00 }, 28, "Federal Signal",   CAT_LIGHTBAR,  SPEC_LE_ONLY    },
   { { 0x0C,0xBF,0x15,0x00,0x00 }, 24, "Genetec",          CAT_ALPR,      SPEC_BROAD      },
-  { { 0x0C,0xFE,0x7B,0x00,0x00 }, 24, "Vantiva",          CAT_VEHICLE,   SPEC_BROAD      },
+  // Disabled locally 2026-10-02: false-positive-prone (school buses etc.).
+  // { { 0x0C,0xFE,0x7B,0x00,0x00 }, 24, "Vantiva",          CAT_VEHICLE,   SPEC_BROAD      },
 #ifndef EXCLUDE_VENDOR_MOTOROLA
   { { 0x10,0x74,0x6F,0x00,0x00 }, 24, "Motorola Sol",     CAT_RADIO,     SPEC_BROAD      },
 #endif
@@ -175,7 +176,8 @@ static const OuiEntry OUI_TABLE[] = {
   { { 0x84,0xDB,0x2F,0x00,0x00 }, 24, "Sierra Wireless",  CAT_VEHICLE,   SPEC_BROAD      },
 #endif
   { { 0x9C,0x06,0x6E,0x00,0x00 }, 24, "Hytera",           CAT_RADIO,     SPEC_BROAD      },
-  { { 0x9C,0x83,0xBF,0x00,0x00 }, 24, "PRO-VISION",       CAT_BODYCAM,   SPEC_LE_ONLY    },
+  // Disabled locally 2026-10-02: false-positive-prone (school buses etc.).
+  // { { 0x9C,0x83,0xBF,0x00,0x00 }, 24, "PRO-VISION",       CAT_BODYCAM,   SPEC_LE_ONLY    },
 #ifndef EXCLUDE_VENDOR_MOTOROLA
   { { 0x9C,0x86,0x2B,0x00,0x00 }, 24, "Motorola Sol",     CAT_RADIO,     SPEC_BROAD      },
 #endif

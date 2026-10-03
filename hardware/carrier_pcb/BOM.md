@@ -14,10 +14,12 @@ for the raw export.
 
 ## Mounting hardware
 
-| Qty | Part | Notes |
-|---|---|---|
-| 4 | M3 screw | Length TBD — case depth is being trimmed once the actual stack height (display + PCB + XIAO/buzzer clearance) is known, see `CLAUDE.md` |
-| 4 | M3 standoff or nut (depending on case boss threading) | Matches the case's existing 4 corner bosses — confirm thread/clearance against the physical case before ordering |
+None. This board isn't screwed to the case — it's held by the header
+engagement with the display board above it, which keeps its own original
+4 screws/standoffs into the case's corner bosses unchanged. A dab of hot
+glue between the carrier PCB and the display board is the fallback if
+testing ever shows the header connection alone isn't enough — not
+included here since it's a maybe-needed-later item, not a planned part.
 
 ## Plug-in modules (not populated on the carrier PCB)
 

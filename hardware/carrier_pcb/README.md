@@ -1,8 +1,8 @@
 # Carrier PCB — WORK IN PROGRESS, NOT FINISHED
 
-Do not fabricate this board as-is. Schematic, footprint layout, and
-routing are complete and DRC-clean, but nothing has been physically
-test-fit against the real case/display yet — see "What's NOT done."
+Do not fabricate this board as-is. Schematic and footprint layout are
+DRC-clean, but U1's footprint was recently corrected (see below) and
+routing needs to be redone from scratch - see "What's NOT done."
 
 ## Mounting: held by the header, not screwed to the case
 
@@ -61,6 +61,44 @@ each time.
 user's own case measurement, not yet a hands-on test with the actual
 board at its current size. Print and test-fit again before fabricating.
 
+## U1 (XIAO socket): footprint was wrong, now matches the real device
+
+The original U1 footprint was a generic guess — two rows of 7 pins,
+7.62mm apart, pins at `i*2.54mm` within each row — never checked against
+the real XIAO ESP32-C5's actual pinout, and not mirrored for back-side
+mounting. User caught both problems: wrong footprint, and backwards for
+how the device actually gets plugged in (XIAO mounts on the board's
+back, opposite the display).
+
+**Fixed using Seeed's own official files**, not another guess:
+downloaded their published KiCad footprint
+(`XIAO-ESP32-C5-DIP.kicad_mod`) and schematic symbol from the
+[XIAO KiCad library](https://wiki.seeedstudio.com/XIAO_BLE/) (same
+family covers every XIAO board). The real footprint has **15.24mm**
+between the two pin rows, not 7.62mm — a completely different part of
+the board was being used. Cross-referenced the symbol to get the
+real pin-number-to-signal mapping (D0–D6 on one row, D7–D10 + 3V3_OUT/
+GND/VBUS on the other, in that specific order — not a clean split).
+
+**Mirroring**: a part mounted on the back layer needs its footprint
+mirrored left-right relative to how it would sit on the front — this is
+what KiCad does automatically when you flip a footprint in the GUI, but
+since this one was hand-authored as raw coordinates, that mirroring had
+to be applied by hand too, and wasn't. Verified the mirror direction
+using Seeed's own front and back pinout diagrams for the XIAO (they
+publish both specifically because this flip is easy to get backwards) -
+confirmed the two diagrams are exact left-right mirrors of each other
+before trusting the derivation.
+
+**Routing cleared, not preserved, for this one.** Unlike the earlier
+outline-only changes (width, height trims), this moves the pads
+themselves, and nearly every net touches U1 directly or routes through
+it - preserving any of the old routing wasn't realistic. Pulled all 64
+track/via segments rather than leave something uncertain in place.
+Board is back to a clean, DRC-verified ratsnest (0 errors, 12
+unconnected items, matching the exact pre-routing baseline) - **needs a
+full re-route**.
+
 ## J2 (SD header socket): populated, not wired
 
 J2 is on the board purely so the display module has somewhere to plug
@@ -93,16 +131,15 @@ now, but confirm against the real board before fabricating.
   position taken directly from the MSP2807 display's own datasheet, not
   estimated. DRC-verified: every pad is on the correct net
   (ratsnest-correct), 0 real errors.
-- **Routing.** Routed interactively in the KiCad GUI (push-and-shove,
-  live DRC), using vias to hop layers at the two nets that shorted in the
-  earlier automated attempt (TFT_SCK/TFT_CS, TFT_MOSI/TFT_DC). **DRC
-  clean: 0 errors, 0 unconnected items** — the only warnings left are the
-  same cosmetic ones seen throughout this project (missing-library
-  notices for the custom footprints, non-mirrored back-layer reference
-  text on U1/J3).
+- **U1 footprint** now matches Seeed's official XIAO-ESP32-C5-DIP
+  footprint, correctly mirrored for back-side mounting (see above).
 
 ## What's NOT done
 
+- **Routing.** Cleared when U1's footprint was corrected (see above) -
+  every pad is on the correct net (ratsnest-correct, DRC confirms 0
+  errors) but there are currently zero copper traces. Needs a full
+  re-route in the KiCad GUI, same process as before.
 - **SD header position** (J2) is re-measured and corrected (see above)
   but still a datasheet-image measurement, not a direct physical check —
   verify against the physical display board before finalizing.

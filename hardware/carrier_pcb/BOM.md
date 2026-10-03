@@ -29,8 +29,15 @@ carrier board. Already documented with sourcing links in the project
 copies drifting out of sync:
 
 - Seeed Studio XIAO ESP32-C5 → plugs into U1
-- MSP2807 2.8" display module → plugs into J1 + J2
+- MSP2807 2.8" display module → plugs into J1 + J2 (see below — J2's
+  side needs a header added to the display board itself first)
 - 3-pin active buzzer module → plugs into J3
+
+## Parts needed on the display module itself (not included with it)
+
+| Part | Qty | Notes |
+|---|---|---|
+| 1×4 male header, straight, 2.54mm pitch | 1 | The MSP2807 ships with its SD-header pads **unpopulated** — confirmed from the datasheet, this isn't a stock part of the board. Hand-solder one onto those pads so the display has pins to plug into J2. Purely mechanical (J2 carries no signals — see README); any 1×4 straight male header works, doesn't need to match any particular spec beyond 2.54mm pitch to fit the pads. |
 
 ## Not yet in this BOM
 

@@ -171,6 +171,11 @@ goal, not abandoned, but it's down the road enough that wiring it now
 would just be unused complexity - revisit as part of a later PCB
 revision, likely alongside touch support.
 
+**The display doesn't come with a header there to plug in** - the
+MSP2807's SD pads ship unpopulated (confirmed from the datasheet). A
+1×4 male header needs to be hand-soldered onto the display board itself
+before it has anything to mate with J2 - added to `BOM.md`.
+
 **Position re-measured and corrected.** The first placement (18.40,
 11.00) was a rough visual estimate. Re-measuring the datasheet image
 found the estimate was based on an incorrect pixel-to-mm scale (assumed

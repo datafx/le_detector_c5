@@ -1,8 +1,11 @@
 # Carrier PCB — WORK IN PROGRESS, NOT FINISHED
 
-Do not fabricate this board as-is. Schematic and footprint layout are
-DRC-clean, but U1's footprint was recently corrected (see below) and
-routing needs to be redone from scratch - see "What's NOT done."
+Do not fabricate this board as-is. Schematic, footprint layout, and
+routing are all DRC-clean (0 errors, 0 unconnected items) - routing was
+redone from scratch after U1's footprint was corrected (see below), and
+solder-side correctness for all 4 connectors was verified directly from
+the footprint layer data, not just visually. Still no physical test-fit
+of the current board size - see "What's NOT done."
 
 ## Mounting: held by the header, not screwed to the case
 
@@ -236,13 +239,14 @@ automatic GUI-flip mirroring for free.
   footprint, correctly mirrored for back-side mounting (see above).
 - **Silkscreen** — functional labels + pin-1 markers on all 4
   connectors, back-layer text verified correctly mirrored (see above).
+- **Routing** — redone from scratch in the KiCad GUI after U1's
+  footprint was corrected. DRC clean: 0 errors, 0 unconnected items.
+- **Solder side for all 4 connectors** — verified directly from each
+  footprint's stored layer field (not just visually): J1/J2 on `F.Cu`
+  (front), U1/J3 on `B.Cu` (back), matching their silkscreen labels.
 
 ## What's NOT done
 
-- **Routing.** Cleared when U1's footprint was corrected (see above) -
-  every pad is on the correct net (ratsnest-correct, DRC confirms 0
-  errors) but there are currently zero copper traces. Needs a full
-  re-route in the KiCad GUI, same process as before.
 - **SD header position** (J2) is re-measured and corrected (see above)
   but still a datasheet-image measurement, not a direct physical check —
   verify against the physical display board before finalizing.

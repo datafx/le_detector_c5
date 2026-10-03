@@ -117,13 +117,44 @@ needs to be at/past the edge, that needs a 180° rotation on top of the
 slide, which hasn't been done - flagging it rather than guessing, since
 it changes which end of the board needs clearance.
 
-## J3 (buzzer socket): pin order changed to match the real module
+## J3 (buzzer socket): pin order changed, moved left, now a right-angle header
 
-Was VCC/GND/SIG (pins 1/2/3). Changed to **GND/SIG/VCC** (pins 1/2/3)
-to match the physical pinout of the actual buzzer module being used.
-Schematic symbol's pin names updated to match (so the symbol doesn't
-show "pin 1 = VCC" while actually wired to GND) - J3's physical pad
-*positions* are unchanged, only which net each pad carries.
+**Pin order**: was VCC/GND/SIG (pins 1/2/3). Changed to **GND/SIG/VCC**
+(pins 1/2/3) to match the physical pinout of the actual buzzer module
+being used. Schematic symbol's pin names updated to match (so the
+symbol doesn't show "pin 1 = VCC" while actually wired to GND) - J3's
+physical pad *positions* didn't change for this part, only which net
+each pad carries.
+
+**Position**: moved from x=20 to **x=9** (pins span 9.00-14.08), clear
+of both the board's left edge (1.55mm pad clearance) and U1's real
+device body (6.77mm clear of U1's courtyard at x≈21.45) - U1 having
+moved right made room for this.
+
+**Right-angle (90°) header, not straight** - so the buzzer module can
+lie flat against the back of the carrier instead of standing up
+perpendicular on pins. This is a BOM/part-choice change, not a PCB
+layout change: a right-angle header's hole pattern is the same 3 pads
+at the same pitch, just a different physical part populated there -
+reflected in `BOM.md`, `bom.csv`, and the schematic's own description
+field for J3.
+
+**Standoff height: not chosen - a real open question, not a guess I'm
+comfortable making.** The buzzer board needs to lie flat without
+touching a USB-C cable plugged into U1's port. Getting that number
+right needs several real measurements I don't have verified: U1's own
+header standoff height (never specified - it's just "a 2x7 female
+header" with no particular part/height chosen either), the XIAO's USB-C
+receptacle height above its own PCB (datasheet has no Z-axis dimension,
+only the 21x17.8mm footprint), and critically, **the actual cable's
+plug profile** - which isn't a XIAO spec at all, it varies by which
+cable gets used, from slim low-profile plugs to bulky ones. A header
+spec sheet can't tell me that part. **Recommend a physical mockup**
+once the real parts are in hand (XIAO + a header + the actual cable
+likely to be used) rather than trusting a number derived from
+incomplete datasheets - or tell me the exact cable/header part numbers
+if there's a specific one in mind and I can look up real dimensions for
+those two at least.
 
 ## J2 (SD header socket): populated, not wired
 

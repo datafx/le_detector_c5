@@ -135,7 +135,7 @@
       (property "Reference" "J3" (at 139.70 229.79 0) (effects (font (size 1.27 1.27))))
       (property "Value" "BUZZER" (at 139.70 212.17 0) (effects (font (size 1.27 1.27))))
       (property "Footprint" "" (at 139.70 220.98 0) (effects (font (size 1.27 1.27)) hide))
-      (property "Description" "1x3 female header, 2.54mm pitch - socket for 3-pin active buzzer module" (at 139.70 220.98 0) (effects (font (size 1.27 1.27)) hide))
+      (property "Description" "1x3 RIGHT-ANGLE (90-degree) female header, 2.54mm pitch - socket for 3-pin active buzzer module, lets the buzzer board lie flat - standoff height must clear a USB-C cable plugged into U1, see README" (at 139.70 220.98 0) (effects (font (size 1.27 1.27)) hide))
       (pin "1" (uuid "4aeca4e6-4fb1-49a0-8781-875ad370af1d"))
       (pin "2" (uuid "646dcb1b-40a2-4083-8f36-bce9ca914823"))
       (pin "3" (uuid "6bdcb111-a2fb-4631-8603-5df4cc975062"))

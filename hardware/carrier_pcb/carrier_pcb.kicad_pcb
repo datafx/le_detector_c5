@@ -504,7 +504,7 @@
 	(footprint "Connector:J3_header"
 		(layer "B.Cu")
 		(uuid "90e84c85-b842-4657-935f-00ddac615324")
-		(at 20 68)
+		(at 9 68)
 		(property "Reference" "J3"
 			(at 0 -3 0)
 			(layer "B.SilkS")

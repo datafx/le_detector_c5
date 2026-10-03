@@ -126,7 +126,18 @@
 			)
 		)
 		(duplicate_pad_numbers_are_jumpers no)
-		(pad "1" thru_hole circle
+		(fp_text user "SD (NC) — FRONT"
+			(at 3.81 5.00 0)
+			(layer "F.SilkS")
+			(uuid "b576fbf9-d664-4dba-8dd4-fda667f90339")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(pad "1" thru_hole rect
 			(at 0 0)
 			(size 1.2 1.2)
 			(drill 0.8)
@@ -207,7 +218,18 @@
 			)
 		)
 		(duplicate_pad_numbers_are_jumpers no)
-		(pad "1" thru_hole circle
+		(fp_text user "DISPLAY — FRONT"
+			(at 16.51 -6.00 0)
+			(layer "F.SilkS")
+			(uuid "9271ad73-959c-4787-97be-eb559a689d7c")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(pad "1" thru_hole rect
 			(at 0 0)
 			(size 1.2 1.2)
 			(drill 0.8)
@@ -342,6 +364,7 @@
 				(font
 					(size 1 1)
 				)
+				(justify mirror)
 			)
 		)
 		(property "Value" ""
@@ -377,7 +400,19 @@
 			)
 		)
 		(duplicate_pad_numbers_are_jumpers no)
-		(pad "1" thru_hole circle
+		(fp_text user "XIAO — BACK"
+			(at 0.00 0.00 0)
+			(layer "B.SilkS")
+			(uuid "dd46f1e5-f4b1-4765-ac08-9fb8b0430b09")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+				(justify mirror)
+			)
+		)
+		(pad "1" thru_hole rect
 			(at -7.62 -7.62)
 			(size 1.2 1.2)
 			(drill 0.8)
@@ -513,6 +548,7 @@
 				(font
 					(size 1 1)
 				)
+				(justify mirror)
 			)
 		)
 		(property "Value" ""
@@ -548,7 +584,19 @@
 			)
 		)
 		(duplicate_pad_numbers_are_jumpers no)
-		(pad "1" thru_hole circle
+		(fp_text user "BUZZER — BACK"
+			(at 0 5.00 0)
+			(layer "B.SilkS")
+			(uuid "f83b6ee9-d74d-4221-87a3-fbf740f63f3e")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+				(justify right mirror)
+			)
+		)
+		(pad "1" thru_hole rect
 			(at 0 0)
 			(size 1.2 1.2)
 			(drill 0.8)

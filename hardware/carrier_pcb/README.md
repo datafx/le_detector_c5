@@ -179,6 +179,40 @@ estimated. Pitch was already right (standard 2.54mm). Still a datasheet
 *image* measurement, not a direct physical check — reasonably confident
 now, but confirm against the real board before fabricating.
 
+## Silkscreen: functional labels, pin-1 markers, and a real bug fixed
+
+Added on request - before this, silkscreen was just 4 bare reference
+designators (J1/J2/J3/U1), nothing else, no graphics at all.
+
+- **Functional labels** on all 4 connectors, stating what they are *and*
+  which side of the board the part goes on: `DISPLAY — FRONT` (J1),
+  `SD (NC) — FRONT` (J2), `XIAO — BACK` (U1), `BUZZER — BACK` (J3).
+- **Pin-1 markers**: pin 1 of every connector is now a square pad
+  instead of round (standard convention) - J2 and J3 didn't strictly
+  need it since they're asymmetric/small, but did it for all 4 for
+  consistency and because this board has already had two real
+  orientation bugs this session (U1's mirroring, J3's pin order) - cheap
+  insurance against a third one during assembly.
+
+**Found and fixed a real bug while verifying this, not a new one
+introduced by it: back-layer silkscreen text was never actually
+mirrored.** DRC has been flagging `nonmirrored_text_on_back_layer` on
+U1's and J3's reference labels since they were first created, and it
+was dismissed every single time as the same cosmetic baseline as the
+`lib_footprint_issues` warnings - it isn't. Rendered the board with
+`kicad-cli`'s `-m` flag (true "physically flip the board and look at
+the back" view, not the usual "see-through from the front" renders used
+throughout this project) and the text came out genuinely backwards -
+`U1`, `J3`, and both new back-side labels all read right-to-left,
+garbled. This would have printed wrong on the real board. Fixed by
+adding `(justify mirror)` to all 4 back-layer text elements (the 2
+existing reference labels plus the 2 new functional labels) - verified
+again with the same true-flip render, now reads correctly. **Re-check
+any future back-layer text added to this board the same way** (render
+with `-m`, don't trust the normal see-through view) - this bug is easy
+to reintroduce since hand-authored S-expressions don't get KiCad's
+automatic GUI-flip mirroring for free.
+
 ## What's done and verified
 
 - **Schematic** (`carrier_pcb.kicad_sch`) — complete, ERC-clean (0 errors).
@@ -190,6 +224,8 @@ now, but confirm against the real board before fabricating.
   (ratsnest-correct), 0 real errors.
 - **U1 footprint** now matches Seeed's official XIAO-ESP32-C5-DIP
   footprint, correctly mirrored for back-side mounting (see above).
+- **Silkscreen** — functional labels + pin-1 markers on all 4
+  connectors, back-layer text verified correctly mirrored (see above).
 
 ## What's NOT done
 

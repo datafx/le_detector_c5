@@ -8,9 +8,11 @@ tools/
 *.lck
 *-backups/
 
-# Local test-fit printouts - regenerate from the .kicad_pcb, don't commit
-# (goes stale the moment the board changes)
+# Local test-fit printouts and fab outputs - regenerate from the
+# .kicad_pcb, don't commit (goes stale the moment the board changes)
 *_printout.pdf
+*_gerbers.zip
+hardware/*/gerbers/
 
 # arduino-cli --export-binaries output - leaks absolute build-machine paths
 # (username, home dir) into build.options.json and .map files.

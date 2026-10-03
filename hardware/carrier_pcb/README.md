@@ -37,6 +37,17 @@ goal, not abandoned, but it's down the road enough that wiring it now
 would just be unused complexity - revisit as part of a later PCB
 revision, likely alongside touch support.
 
+**Position re-measured and corrected.** The first placement (18.40,
+11.00) was a rough visual estimate. Re-measuring the datasheet image
+found the estimate was based on an incorrect pixel-to-mm scale (assumed
+a literal 1:1 300dpi-to-mm render; the PDF's actual scale, derived from
+the two known hole-spacing dimensions, is ~9.05px/mm, not ~11.81).
+Corrected position: **(21.15, 4.96)** — the 4 SD pads sit at essentially
+the same height as the top mounting holes, not ~11mm down as first
+estimated. Pitch was already right (standard 2.54mm). Still a datasheet
+*image* measurement, not a direct physical check — reasonably confident
+now, but confirm against the real board before fabricating.
+
 ## What's done and verified
 
 - **Schematic** (`carrier_pcb.kicad_sch`) — complete, ERC-clean (0 errors).
@@ -55,9 +66,14 @@ revision, likely alongside touch support.
   it was deliberately left undone rather than shipped broken. Route this
   interactively in the KiCad GUI (live DRC, push-and-shove routing) before
   doing anything else with this board.
-- **SD header position** (J2) is a visual estimate from the datasheet
-  drawing, not a labeled dimension — verify against the physical display
-  board before finalizing.
+- **SD header position** (J2) is re-measured and corrected (see above)
+  but still a datasheet-image measurement, not a direct physical check —
+  verify against the physical display board before finalizing.
+- **Board is a standard 2-layer design** (F.Cu + B.Cu, both already
+  declared) — nothing needed there. Routing is free to use either layer
+  per segment; the two known problem crossings (TFT_SCK/TFT_CS and
+  TFT_MOSI/TFT_DC) need a via to hop layers rather than running straight,
+  per the routing walkthrough.
 - **Corner chamfer vs. the real case bosses** — sized against the
   display's datasheet hole positions, not the actual boss geometry inside
   the case (unverified — see above). Test-fit before fabricating.

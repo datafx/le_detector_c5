@@ -17,39 +17,40 @@ keeps screwing to the case exactly as it did before this board existed).
 If real-world vibration ever proves that insufficient, a dab of hot glue
 between the two boards is the cheap fix — not designed in up front.
 
-Each of the 4 corners has a **square notch** cut out (not a diagonal
-chamfer), because the case's corner bosses (for the display's own
-screws) occupy that corner area and this board must not collide with
-them.
+**History: chamfer → notch → narrowed board, each one fitting the real
+case better than the last.** The first version used a 6mm diagonal
+chamfer at each corner, sized off the display's datasheet hole margins
+with no real measurement of the boss itself. A 1:1 scale printout
+test-fit against the real case showed it wasn't close - the boss is a
+rounded square, not the slim post the chamfer assumed. Measured it
+properly off the case STL (top-down render, self-calibrated against the
+model's own exact bounding box, not an assumed scale): roughly **7-8mm
+across**. Switched to a square notch sized as large as the layout
+allowed (7.3mm, capped by J1's own pad clearance) - still about 1mm
+short of what the boss needed, an acknowledged unresolved gap at the
+time.
 
-**History: chamfer → measured → too small → notch, sized against the
-real boss.** The first version used a 6mm diagonal chamfer sized off the
-display's datasheet hole margins, with no real measurement of the boss
-itself. User printed the board at true 1:1 scale and physically test-fit
-it against the case: **not close** — the real boss is a rounded square,
-not the slim post the chamfer assumed. Measured it properly off the case
-STL with a top-down render, self-calibrated against the model's own
-exact bounding box (not an assumed scale, same discipline as the J2
-datasheet fix): the boss is roughly **7-8mm across**. Switched from a
-diagonal chamfer to a square notch (clears a rounded post with less
-material removed, and is simpler to verify by eye) and sized it as large
-as the layout allows.
+**Resolved differently: don't dodge the bosses, don't reach them at
+all.** User measured the case's actual clear channel between the two
+bosses directly: **36.3mm wide** (the board's full 86mm length is fine,
+the case was never tight there). The board is now a **plain rectangle,
+36.3mm × 86mm**, centered on J1 (which is the single widest feature at
+33.02mm) rather than matching the display's full 50mm width. This
+sidesteps the boss problem entirely instead of cutting around it - no
+corner notches needed, and it also incidentally resolved a DRC
+clearance warning on a user-routed TFT_SCK trace that had been sitting
+close to the old, bigger notch. J1 keeps 1.04mm of copper-to-edge
+clearance on each side (comfortably above the 0.5mm minimum), and J2/U1/
+J3 were already well inside this narrower footprint with no changes
+needed. Routing (64 track/via segments, hand-routed in the GUI) was
+preserved by editing the outline directly in the routed file rather than
+regenerating from the script - confirmed via DRC (0 errors) and a
+direct coordinate check (no existing trace/via falls outside the new
+boundary).
 
-**That maximum is 7.3mm, not the ~8.3mm the measurement suggests is
-needed** — capped by J1's own end pads, which sit close enough to the
-corners (8.49mm pin-center inset, 0.6mm pad radius) that anything larger
-violates the board's 0.5mm copper-to-edge clearance rule. J1 can't move
-— its position is fixed by the real display module's own header
-location. **This is a real, acknowledged shortfall (~1mm), not yet
-resolved** — if 7.3mm still doesn't clear the real boss on test-fit, the
-realistic fix is trimming a sliver off the boss itself, not shrinking
-the board further.
-
-One more thing the larger notch exposed: it now runs close enough to a
-user-routed **TFT_SCK** trace near the bottom-left corner that DRC flags
-~0.19mm clearance there (needs 0.5mm) — nudge that trace segment
-(around x=7.6, y=83-84) slightly away from the edge in the GUI before
-fabricating.
+**Still not physically confirmed** - this is a digital fit against the
+user's own case measurement, not yet a hands-on test with the actual
+narrowed board. Print and test-fit again before fabricating.
 
 ## J2 (SD header socket): populated, not wired
 
@@ -79,8 +80,8 @@ now, but confirm against the real board before fabricating.
 - **Schematic** (`carrier_pcb.kicad_sch`) — complete, ERC-clean (0 errors).
   Every net matches the locked pin table in the project's own notes.
 - **PCB footprint placement** (`carrier_pcb.kicad_pcb`) — board outline
-  (notched, see above) and the display's main header position taken
-  directly from the MSP2807 display's own datasheet, not estimated.
+  (36.3×86mm rectangle, see above) and the display's main header position
+  taken directly from the MSP2807 display's own datasheet, not estimated.
   DRC-verified: every pad is on the correct net (ratsnest-correct), 0 real
   errors.
 - **Routing.** Routed interactively in the KiCad GUI (push-and-shove,
@@ -96,18 +97,12 @@ now, but confirm against the real board before fabricating.
 - **SD header position** (J2) is re-measured and corrected (see above)
   but still a datasheet-image measurement, not a direct physical check —
   verify against the physical display board before finalizing.
-- **Corner notch may still be ~1mm short of the real boss** — the layout
-  caps it at 7.3mm (J1's pad clearance), the boss measurement suggests
-  ~8.3mm is needed. Acknowledged gap, not resolved — see above. Trimming
-  the boss is the likely fix if test-fit confirms it's still tight.
-- **TFT_SCK trace near the bottom-left notch needs a nudge** — DRC flags
-  ~0.19mm clearance (needs 0.5mm) now that the notch is bigger. Quick fix
-  in the GUI, not yet done.
 - **No future USB-C panel connector or pigtail** designed yet — the case
   already has a wire-passthrough cutout reserved for this, but the
   connector and cable routing aren't part of this board yet.
 - **No physical test-fit yet** against the real case/display with the
-  *current* (notched) outline — the first chamfered version was test-fit
-  and found insufficient, which is what prompted this revision.
+  *current* (narrowed) outline — sized against the user's own case
+  measurement (36.3mm clear channel), not yet confirmed hands-on with
+  the actual board.
 
 ## Fits the case in `../../case/` (also WIP — see its README)

@@ -665,5 +665,17 @@
 		(layer "Edge.Cuts")
 		(uuid "25c6057d-e1ff-4954-9863-74a30211235e")
 	)
+	(gr_text "LE Detector C5 by datafx"
+		(at 11 8 90)
+		(layer "B.SilkS")
+		(uuid "8f5c5e32-8e1a-4b6d-9e1f-8d5c3a2b7c4e")
+		(effects
+			(font
+				(size 2.2 2.2)
+				(thickness 0.3)
+			)
+			(justify left mirror)
+		)
+	)
 	(embedded_fonts no)
 )

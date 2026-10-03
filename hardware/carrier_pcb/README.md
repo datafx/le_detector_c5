@@ -193,6 +193,16 @@ designators (J1/J2/J3/U1), nothing else, no graphics at all.
   consistency and because this board has already had two real
   orientation bugs this session (U1's mirroring, J3's pin order) - cheap
   insurance against a third one during assembly.
+- **Board title**: `LE Detector C5 by datafx`, 2.2mm text (noticeably
+  larger than the 1mm connector labels), vertical along the left edge,
+  top-justified. Placed on the back (B.SilkS) rather than the front -
+  the display covers nearly the full front face once plugged into J1
+  (its own board is as tall as this carrier, header near its bottom
+  edge), so front silkscreen would be hidden after assembly; the back
+  stays mostly open even with U1/J3 populated. Positioned clear of both
+  U1 and J3, confirmed via DRC and a true flipped-back render (not just
+  the see-through view) before trusting it, per the mirroring lesson
+  just below.
 
 **Found and fixed a real bug while verifying this, not a new one
 introduced by it: back-layer silkscreen text was never actually

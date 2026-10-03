@@ -333,7 +333,7 @@
 	(footprint "Connector:U1_header"
 		(layer "B.Cu")
 		(uuid "0f6d4fcb-3e3b-445f-b6b1-59369a32bb47")
-		(at 25 38)
+		(at 32 38)
 		(property "Reference" "U1"
 			(at 0 -9.5 0)
 			(layer "B.SilkS")
@@ -554,7 +554,7 @@
 			(drill 0.8)
 			(layers "*.Cu" "*.Mask")
 			(remove_unused_layers no)
-			(net "3V3")
+			(net "GND")
 			(uuid "f7ef263b-b623-490c-a523-c89fd8b4458d")
 		)
 		(pad "2" thru_hole circle
@@ -563,7 +563,7 @@
 			(drill 0.8)
 			(layers "*.Cu" "*.Mask")
 			(remove_unused_layers no)
-			(net "GND")
+			(net "BUZZER_SIG")
 			(uuid "a1756428-05f6-424d-ad2f-38080c620a9f")
 		)
 		(pad "3" thru_hole circle
@@ -572,7 +572,7 @@
 			(drill 0.8)
 			(layers "*.Cu" "*.Mask")
 			(remove_unused_layers no)
-			(net "BUZZER_SIG")
+			(net "3V3")
 			(uuid "83b97258-bc1b-4f73-b6a3-09f0a1a1bde6")
 		)
 		(embedded_fonts no)

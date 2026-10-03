@@ -99,6 +99,32 @@ Board is back to a clean, DRC-verified ratsnest (0 errors, 12
 unconnected items, matching the exact pre-routing baseline) - **needs a
 full re-route**.
 
+**Slid toward the board's right edge** for USB-C cable clearance, as
+far as the *real device's physical body* allows - not just its pads.
+The pads alone would have permitted sliding further right, but the
+actual XIAO module extends ~2.8mm beyond its own pin span on each side;
+checking pads only would have let the real part hang ~1.3mm off the
+board edge. Capped at **x=32** (board right edge minus the real
+courtyard extent minus a 0.5mm margin), not x=34.
+
+**Flagging, not deciding, one open question**: with this as a straight
+slide (no rotation), the XIAO's USB-C port faces *inward* (toward
+x≈21-23, the board's open left-center area), not toward the right edge
+itself - it's the *blank far end* of the device that now sits near the
+right edge. This still frees up real approach space for a cable (the
+whole left side of U1's row is now open board), but if the port itself
+needs to be at/past the edge, that needs a 180° rotation on top of the
+slide, which hasn't been done - flagging it rather than guessing, since
+it changes which end of the board needs clearance.
+
+## J3 (buzzer socket): pin order changed to match the real module
+
+Was VCC/GND/SIG (pins 1/2/3). Changed to **GND/SIG/VCC** (pins 1/2/3)
+to match the physical pinout of the actual buzzer module being used.
+Schematic symbol's pin names updated to match (so the symbol doesn't
+show "pin 1 = VCC" while actually wired to GND) - J3's physical pad
+*positions* are unchanged, only which net each pad carries.
+
 ## J2 (SD header socket): populated, not wired
 
 J2 is on the board purely so the display module has somewhere to plug

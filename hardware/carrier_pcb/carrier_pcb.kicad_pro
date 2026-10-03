@@ -1,0 +1,16 @@
+{
+  "board": {
+    "design_settings": {}
+  },
+  "meta": {
+    "filename": "carrier_pcb.kicad_pro",
+    "version": 1
+  },
+  "sheets": [
+    [
+      "/",
+      "Root"
+    ]
+  ],
+  "text_variables": {}
+}

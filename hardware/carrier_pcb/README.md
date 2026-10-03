@@ -33,7 +33,7 @@ time.
 **Resolved differently: don't dodge the bosses, don't reach them at
 all.** User measured the case's actual clear channel between the two
 bosses directly: **36.3mm wide** (the board's full 86mm length is fine,
-the case was never tight there). The board is now a **plain rectangle,
+the case was never tight there). The board became a **plain rectangle,
 36.3mm × 86mm**, centered on J1 (which is the single widest feature at
 33.02mm) rather than matching the display's full 50mm width. This
 sidesteps the boss problem entirely instead of cutting around it - no
@@ -42,15 +42,24 @@ clearance warning on a user-routed TFT_SCK trace that had been sitting
 close to the old, bigger notch. J1 keeps 1.04mm of copper-to-edge
 clearance on each side (comfortably above the 0.5mm minimum), and J2/U1/
 J3 were already well inside this narrower footprint with no changes
-needed. Routing (64 track/via segments, hand-routed in the GUI) was
-preserved by editing the outline directly in the routed file rather than
-regenerating from the script - confirmed via DRC (0 errors) and a
-direct coordinate check (no existing trace/via falls outside the new
-boundary).
+needed.
+
+**Trimmed again: top edge pulled in to put J2 right on the edge too,
+mirroring J1.** J1 sits 2.0mm (pin-center-to-edge) from the bottom edge.
+J2 was still 4.96mm from the top edge, leaving unused board above it.
+Pulled the top edge in to the same 2.0mm margin: new top edge at
+**y=2.96** (was y=0), so the board is now **36.3mm × 83.04mm**. J2 gets
+the same 1.40mm copper-to-edge clearance J1 already had. Both edits
+(width and this height trim) were applied by editing the outline
+directly in the routed file rather than regenerating from the script,
+each time confirming no existing trace/via fell outside the new
+boundary before committing to it - preserved all 64 of the user's
+hand-routed segments through both changes, verified via DRC (0 errors)
+each time.
 
 **Still not physically confirmed** - this is a digital fit against the
 user's own case measurement, not yet a hands-on test with the actual
-narrowed board. Print and test-fit again before fabricating.
+board at its current size. Print and test-fit again before fabricating.
 
 ## J2 (SD header socket): populated, not wired
 
@@ -80,10 +89,10 @@ now, but confirm against the real board before fabricating.
 - **Schematic** (`carrier_pcb.kicad_sch`) — complete, ERC-clean (0 errors).
   Every net matches the locked pin table in the project's own notes.
 - **PCB footprint placement** (`carrier_pcb.kicad_pcb`) — board outline
-  (36.3×86mm rectangle, see above) and the display's main header position
-  taken directly from the MSP2807 display's own datasheet, not estimated.
-  DRC-verified: every pad is on the correct net (ratsnest-correct), 0 real
-  errors.
+  (36.3×83.04mm rectangle, see above) and the display's main header
+  position taken directly from the MSP2807 display's own datasheet, not
+  estimated. DRC-verified: every pad is on the correct net
+  (ratsnest-correct), 0 real errors.
 - **Routing.** Routed interactively in the KiCad GUI (push-and-shove,
   live DRC), using vias to hop layers at the two nets that shorted in the
   earlier automated attempt (TFT_SCK/TFT_CS, TFT_MOSI/TFT_DC). **DRC

@@ -1,7 +1,8 @@
 # Carrier PCB — WORK IN PROGRESS, NOT FINISHED
 
-Do not fabricate this board as-is. This is a first-draft schematic and
-footprint layout, not a finished design.
+Do not fabricate this board as-is. Schematic, footprint layout, and
+routing are complete and DRC-clean, but nothing has been physically
+test-fit against the real case/display yet — see "What's NOT done."
 
 ## Mounting: held by the header, not screwed to the case
 
@@ -57,28 +58,26 @@ now, but confirm against the real board before fabricating.
   directly from the MSP2807 display's own datasheet, not estimated.
   DRC-verified: every pad is on the correct net (ratsnest-correct), 0 real
   errors.
+- **Routing.** Routed interactively in the KiCad GUI (push-and-shove,
+  live DRC), using vias to hop layers at the two nets that shorted in the
+  earlier automated attempt (TFT_SCK/TFT_CS, TFT_MOSI/TFT_DC). **DRC
+  clean: 0 errors, 0 unconnected items** — the only warnings left are the
+  same cosmetic ones seen throughout this project (missing-library
+  notices for the custom footprints, non-mirrored back-layer reference
+  text on U1/J3).
 
 ## What's NOT done
 
-- **Routing.** The board currently has zero copper traces — just
-  footprints and a verified ratsnest. An automated first attempt at
-  routing produced actual electrical shorts between adjacent signals, so
-  it was deliberately left undone rather than shipped broken. Route this
-  interactively in the KiCad GUI (live DRC, push-and-shove routing) before
-  doing anything else with this board.
 - **SD header position** (J2) is re-measured and corrected (see above)
   but still a datasheet-image measurement, not a direct physical check —
   verify against the physical display board before finalizing.
-- **Board is a standard 2-layer design** (F.Cu + B.Cu, both already
-  declared) — nothing needed there. Routing is free to use either layer
-  per segment; the two known problem crossings (TFT_SCK/TFT_CS and
-  TFT_MOSI/TFT_DC) need a via to hop layers rather than running straight,
-  per the routing walkthrough.
 - **Corner chamfer vs. the real case bosses** — sized against the
   display's datasheet hole positions, not the actual boss geometry inside
   the case (unverified — see above). Test-fit before fabricating.
 - **No future USB-C panel connector or pigtail** designed yet — the case
   already has a wire-passthrough cutout reserved for this, but the
   connector and cable routing aren't part of this board yet.
+- **No physical test-fit yet** against the real case/display — routing
+  and footprint placement are DRC-verified, not hardware-verified.
 
 ## Fits the case in `../../case/` (also WIP — see its README)

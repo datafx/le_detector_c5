@@ -4,8 +4,9 @@
 *.elf
 tools/
 
-# KiCad transient lock file, created while a project is open in the GUI
-*.kicad_pro.lck
+# KiCad transient lock files and local auto-backup zips
+*.lck
+*-backups/
 
 # arduino-cli --export-binaries output - leaks absolute build-machine paths
 # (username, home dir) into build.options.json and .map files.

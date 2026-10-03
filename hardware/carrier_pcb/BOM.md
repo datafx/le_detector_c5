@@ -8,7 +8,7 @@ for the raw export.
 | Ref | Qty | Description |
 |---|---|---|
 | J1 | 1 | 1×14 female header, 2.54mm pitch — socket for MSP2807 display main header |
-| J2 | 1 | 1×4 female header, 2.54mm pitch — socket for MSP2807 SD header |
+| J2 | 1 | 1×4 female header, 2.54mm pitch — socket for MSP2807 SD header (**mechanical only, not wired** — see README) |
 | J3 | 1 | 1×3 female header, 2.54mm pitch — socket for 3-pin active buzzer module |
 | U1 | 1 | 2×7 female header, 2.54mm pitch — socket for Seeed XIAO ESP32-C5 |
 

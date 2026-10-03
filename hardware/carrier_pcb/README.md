@@ -25,6 +25,18 @@ chamfer line) — not measured against the actual boss shape/diameter,
 which is unverified. **Test-fit against the physical case before
 fabricating.**
 
+## J2 (SD header socket): populated, not wired
+
+J2 is on the board purely so the display module has somewhere to plug
+its SD header into for mechanical support — pulling one corner of the
+display without it would leave that corner unsupported by anything but
+J1. It carries **no electrical connections**: all 4 pins (and U1's
+SD_CS pin, which would otherwise drive it) are explicit no-connects.
+SD card bring-up (mount, read, CSV config/logging) is a real future
+goal, not abandoned, but it's down the road enough that wiring it now
+would just be unused complexity - revisit as part of a later PCB
+revision, likely alongside touch support.
+
 ## What's done and verified
 
 - **Schematic** (`carrier_pcb.kicad_sch`) — complete, ERC-clean (0 errors).

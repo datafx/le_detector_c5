@@ -11,3 +11,8 @@ fits and works, but this is not the final case.
   `../hardware/carrier_pcb/`, also still WIP) is finished and the actual
   component stack height is known — the current depth has far more
   clearance than needed.
+- **GoPro-style mount + USB panel connector cutout added** (2026-10-16)
+  — extends the case body by ~23mm in length for the mount tab. Panel
+  connector cutout is for the future USB-C passthrough already referenced
+  in the project notes (carrier PCB plugs in internally via a pigtail,
+  not designed yet — see `../hardware/carrier_pcb/BOM.md`).

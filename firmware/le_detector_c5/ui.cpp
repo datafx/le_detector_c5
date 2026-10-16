@@ -36,6 +36,12 @@ void uiInit() {
     tft.begin();
     tft.setRotation(1);
     tft.fillScreen(COLOR_BG);
+    // A line that overflows the screen width would otherwise wrap onto the
+    // next line and collide with whatever gets drawn at that fixed Y
+    // position next - a silent overlap bug, not just a clipped line. Clip
+    // instead: worst case one line loses its tail, which is far more
+    // readable than two lines rendered on top of each other.
+    tft.setTextWrap(false);
 }
 
 void uiBootScreen() {
@@ -45,32 +51,47 @@ void uiBootScreen() {
     tft.setTextSize(3);
     tft.setCursor(MARGIN, MARGIN);
     tft.println("LE GEAR DETECTOR");
-    tft.drawFastHLine(MARGIN, MARGIN + 28, screenW() - 2 * MARGIN, COLOR_TEXT);
+    uint16_t y = MARGIN + 28;
+    tft.drawFastHLine(MARGIN, y, screenW() - 2 * MARGIN, COLOR_TEXT);
+    y += 12;
 
     char line[48];
     tft.setTextSize(2);
+    const uint16_t LINE_H = 24;
 
-    tft.setCursor(MARGIN, MARGIN + 44);
     snprintf(line, sizeof(line), "OUI entries: %u", (unsigned)ouiTableSize());
+    tft.setCursor(MARGIN, y);
     tft.println(line);
+    y += LINE_H;
 
-    tft.setCursor(MARGIN, MARGIN + 68);
     snprintf(line, sizeof(line), "SSID entries: %u", (unsigned)ssidTableSize());
+    tft.setCursor(MARGIN, y);
     tft.println(line);
+    y += LINE_H;
 
-    tft.setCursor(MARGIN, MARGIN + 92);
     snprintf(line, sizeof(line), "BLE scan: %s", BLE_SCAN_PASSIVE ? "passive" : "ACTIVE");
+    tft.setCursor(MARGIN, y);
     tft.println(line);
+    y += LINE_H;
 
-    tft.setCursor(MARGIN, MARGIN + 116);
-    snprintf(line, sizeof(line), "WiFi 5GHz: %u ch, 2.4GHz: %u ch (token)",
-             (unsigned)WIFI_5G_CHANNEL_COUNT, (unsigned)WIFI_2G_CHANNEL_COUNT);
+    // Split across two lines, not one - the combined "WiFi 5GHz: N ch,
+    // 2.4GHz: N ch (token)" line ran ~37 characters at this text size
+    // against a ~24-character-wide screen, silently wrapping onto (and
+    // overlapping) the line below it.
+    snprintf(line, sizeof(line), "WiFi 5GHz: %u ch", (unsigned)WIFI_5G_CHANNEL_COUNT);
+    tft.setCursor(MARGIN, y);
     tft.println(line);
+    y += LINE_H;
 
-    tft.setCursor(MARGIN, MARGIN + 140);
+    snprintf(line, sizeof(line), "WiFi 2.4GHz: %u ch (tok)", (unsigned)WIFI_2G_CHANNEL_COUNT);
+    tft.setCursor(MARGIN, y);
+    tft.println(line);
+    y += LINE_H;
+
+    tft.setCursor(MARGIN, y);
     tft.println("Starting...");
 
-    delay(800);
+    delay(5000);
     tft.fillScreen(COLOR_BG);
 }
 

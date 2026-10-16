@@ -89,7 +89,12 @@ static const uint8_t  RSSI_EMA_DEN      = 3;     //   value = (new*1 + old*2)/3
 static const uint32_t ALERT_HOLD_MS       = 14000;
 
 static const int8_t   RSSI_WEAK         = -95;   // maps to the slowest flash
-static const int8_t   RSSI_STRONG       = -45;   // maps to the fastest flash
+// -45 was an assumed ceiling, never measured. Field data: parked right next
+// to real target vehicles tops out around -65 to -60 dBm (embedded, modest-
+// power radios read through a vehicle body/window, not free-space range) -
+// -45 was never reachable in practice, so the bar/flash rate never hit full
+// scale. -65 is now "as strong as it gets" - full bar, fastest flash.
+static const int8_t   RSSI_STRONG       = -65;   // maps to the fastest flash
 static const uint32_t FLASH_PERIOD_SLOW = 1000;  // ms, full on+off cycle
 static const uint32_t FLASH_PERIOD_FAST = 150;
 

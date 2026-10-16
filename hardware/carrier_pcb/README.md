@@ -1,11 +1,11 @@
 # Carrier PCB — WORK IN PROGRESS, NOT FINISHED
 
-Do not fabricate this board as-is. Schematic, footprint layout, and
-routing are all DRC-clean (0 errors, 0 unconnected items) - routing was
-redone from scratch after U1's footprint was corrected (see below), and
-solder-side correctness for all 4 connectors was verified directly from
-the footprint layer data, not just visually. Still no physical test-fit
-of the current board size - see "What's NOT done."
+Do not fabricate this board as-is. A physical prototype of the previous
+revision was built and bench-tested - display, buzzer, and routing all
+confirmed working - but that hands-on assembly surfaced two more fixes
+(board length, J3 position; see below), so **3 nets (GND, BUZZER_SIG,
+3V3) need re-routing** before this is fabrication-ready again - see
+"What's NOT done."
 
 ## Mounting: held by the header, not screwed to the case
 
@@ -60,9 +60,46 @@ boundary before committing to it - preserved all 64 of the user's
 hand-routed segments through both changes, verified via DRC (0 errors)
 each time.
 
-**Still not physically confirmed** - this is a digital fit against the
-user's own case measurement, not yet a hands-on test with the actual
-board at its current size. Print and test-fit again before fabricating.
+**Now physically confirmed - and that confirmation found two more real
+issues.** A physical prototype of the board (narrowed width, trimmed
+top edge) was built and bench-tested: display, buzzer, and routing all
+worked. But mounting the real display on the real board surfaced a
+mechanical problem the digital fit couldn't catch: **the board was too
+short**. The display engages via two header rows (J1 at the bottom, J2
+near the top) with no mounting holes holding it flush - with the
+carrier's top edge trimmed all the way in to match J2's margin, there
+wasn't enough board material left above J2 to keep the display properly
+supported/level once both headers were engaged, and the display sat
+tilted rather than straight. **Extended the top edge back out by 2mm**
+(y=2.96 -> y=0.96, board now 36.3 x 85.04mm) to give that corner more
+backing material - not a full revert of the earlier J2 edge-trim, just
+enough to fix the tilt.
+
+**Also moved J3 (buzzer) closer to J1** (y=68 -> y=78, x unchanged) -
+the real XIAO's USB-C connector was crowding the buzzer's right-angle
+header in practice, something the digital layout didn't surface either
+since courtyard-only clearance checks don't capture a mated cable's
+real footprint. Moving J3 toward J1 trades its distance from U1's USB-C
+area for more working room. Verified clear of J1's own pads (4.8mm
+copper clearance) via DRC.
+
+**Routing cost of this move: not trivial.** GND, BUZZER_SIG, and 3V3
+are the only nets that touch J3, so only those needed clearing (12
+segments + 2 vias, out of 41 total) - the other 26 segments (all the
+TFT_* signal routing, untouched) survived intact. But GND turned out to
+use J3's own pad as the junction point connecting J1 and U1's GND
+together, not just a branch to J3 - so re-routing GND means redoing the
+full 3-way connection, not just adding one short new segment. Checked
+for other-net collisions at J3's new position before moving it (a TFT_CS
+trace runs close by at x=15.71, confirmed 0.93mm clear) - also caught
+and fixed a new silkscreen-over-copper warning from J3's own label
+landing too close to J1's row in the tighter gap; moved the label to
+the now much-larger open space on J3's other side instead.
+
+**Still needs**: re-routing GND/BUZZER_SIG/3V3 (flagged above), and a
+fresh physical test-fit of this corrected board - the tilt and USB-C
+crowding were real-hardware findings, but this specific fix hasn't been
+built yet.
 
 ## U1 (XIAO socket): footprint was wrong, now matches the real device
 
@@ -236,30 +273,36 @@ automatic GUI-flip mirroring for free.
 - **Schematic** (`carrier_pcb.kicad_sch`) — complete, ERC-clean (0 errors).
   Every net matches the locked pin table in the project's own notes.
 - **PCB footprint placement** (`carrier_pcb.kicad_pcb`) — board outline
-  (36.3×83.04mm rectangle, see above) and the display's main header
+  (36.3×85.04mm rectangle, see above) and the display's main header
   position taken directly from the MSP2807 display's own datasheet, not
   estimated. DRC-verified: every pad is on the correct net
   (ratsnest-correct), 0 real errors.
 - **U1 footprint** now matches Seeed's official XIAO-ESP32-C5-DIP
   footprint, correctly mirrored for back-side mounting (see above).
+  **Confirmed on real hardware** - a physical prototype was built and
+  bench-tested, display and buzzer both working.
 - **Silkscreen** — functional labels + pin-1 markers on all 4
   connectors, back-layer text verified correctly mirrored (see above).
-- **Routing** — redone from scratch in the KiCad GUI after U1's
-  footprint was corrected. DRC clean: 0 errors, 0 unconnected items.
 - **Solder side for all 4 connectors** — verified directly from each
   footprint's stored layer field (not just visually): J1/J2 on `F.Cu`
   (front), U1/J3 on `B.Cu` (back), matching their silkscreen labels.
 
 ## What's NOT done
 
+- **Routing.** GND, BUZZER_SIG, and 3V3 need re-routing after J3's move
+  (see above) - 4 unconnected items, DRC confirms everything else (the
+  other 26 of 41 segments) is untouched and still clean. The other 7
+  nets (TFT_*, 5V) are already routed and don't need rework.
 - **SD header position** (J2) is re-measured and corrected (see above)
   but still a datasheet-image measurement, not a direct physical check —
   verify against the physical display board before finalizing.
 - **No future USB-C panel connector or pigtail** designed yet — the case
   already has a wire-passthrough cutout reserved for this, but the
   connector and cable routing aren't part of this board yet.
-- **No physical test-fit yet** against the real case/display with the
-  *current* (narrowed) outline — sized against the user's own case
+- **No physical test-fit of *this* corrected board yet** — the tilt and
+  USB-C crowding that prompted this revision were found on the
+  *previous* physical prototype; this fix (2mm longer, J3 moved) hasn't
+  been built and tested itself yet. Sized against the user's own case
   measurement (36.3mm clear channel), not yet confirmed hands-on with
   the actual board.
 

@@ -2,10 +2,10 @@
 
 Do not fabricate this board as-is. A physical prototype of the previous
 revision was built and bench-tested - display, buzzer, and routing all
-confirmed working - but that hands-on assembly surfaced two more fixes
-(board length, J3 position; see below), so **3 nets (GND, BUZZER_SIG,
-3V3) need re-routing** before this is fabrication-ready again - see
-"What's NOT done."
+confirmed working - but that hands-on assembly surfaced real mechanical
+issues (board length *and* J2 spacing, J3 position; see below), now
+fixed and fully re-routed (0 unconnected items). This corrected revision
+hasn't been physically built yet - see "What's NOT done."
 
 ## Mounting: held by the header, not screwed to the case
 
@@ -65,15 +65,27 @@ issues.** A physical prototype of the board (narrowed width, trimmed
 top edge) was built and bench-tested: display, buzzer, and routing all
 worked. But mounting the real display on the real board surfaced a
 mechanical problem the digital fit couldn't catch: **the board was too
-short**. The display engages via two header rows (J1 at the bottom, J2
-near the top) with no mounting holes holding it flush - with the
-carrier's top edge trimmed all the way in to match J2's margin, there
-wasn't enough board material left above J2 to keep the display properly
-supported/level once both headers were engaged, and the display sat
-tilted rather than straight. **Extended the top edge back out by 2mm**
-(y=2.96 -> y=0.96, board now 36.3 x 85.04mm) to give that corner more
-backing material - not a full revert of the earlier J2 edge-trim, just
-enough to fix the tilt.
+short, and the display sat tilted rather than straight.**
+
+**First attempt at the fix was wrong - extending the board outline
+alone doesn't change anything mechanically.** Initial diagnosis:
+insufficient board material above J2 to physically back/support the
+display once both headers were engaged. Extended the top edge back out
+by 2mm (y=2.96 -> y=0.96) without moving J2 itself. User caught this
+immediately: J2's position relative to J1 - the actual thing that
+determines whether two header rows line up with the real display's true
+spacing - never changed, so nothing about the mechanical fit could have
+changed either; the board was just bigger, the tilt was still there.
+**Real fix: move J2 the same 2mm, same direction, right along with the
+edge** (y=4.96 -> 2.96) - not just extend the board around it. This
+restores J2's margin-from-edge to exactly 2.0mm (matching J1's margin
+again, same relationship as the original "J2 sits on the edge like J1"
+decision) and - the part that actually matters mechanically -
+**increases the J1-to-J2 spacing by 2mm** (79.04mm -> 81.04mm), which is
+what a header-spacing mismatch against the real display would need.
+Board is now **36.3 x 85.04mm**. J2 carries no electrical connections
+(see below), so this move touched zero routing - verified via DRC (0
+errors, segment/via count unchanged before and after).
 
 **Also moved J3 (buzzer) closer to J1** (y=68 -> y=78, x unchanged) -
 the real XIAO's USB-C connector was crowding the buzzer's right-angle
@@ -286,24 +298,27 @@ automatic GUI-flip mirroring for free.
 - **Solder side for all 4 connectors** — verified directly from each
   footprint's stored layer field (not just visually): J1/J2 on `F.Cu`
   (front), U1/J3 on `B.Cu` (back), matching their silkscreen labels.
+- **Routing** — GND/BUZZER_SIG/3V3 re-routed by the user after J3's move
+  (see above). DRC clean: 0 errors, **0 unconnected items** - all 10
+  nets fully routed.
 
 ## What's NOT done
 
-- **Routing.** GND, BUZZER_SIG, and 3V3 need re-routing after J3's move
-  (see above) - 4 unconnected items, DRC confirms everything else (the
-  other 26 of 41 segments) is untouched and still clean. The other 7
-  nets (TFT_*, 5V) are already routed and don't need rework.
 - **SD header position** (J2) is re-measured and corrected (see above)
   but still a datasheet-image measurement, not a direct physical check —
-  verify against the physical display board before finalizing.
+  verify against the physical display board before finalizing. Its Y
+  position has now been corrected twice from that original estimate
+  (datasheet re-measurement, then the 2mm spacing fix above) - a
+  physical check is overdue before trusting it a third time.
 - **No future USB-C panel connector or pigtail** designed yet — the case
   already has a wire-passthrough cutout reserved for this, but the
   connector and cable routing aren't part of this board yet.
 - **No physical test-fit of *this* corrected board yet** — the tilt and
   USB-C crowding that prompted this revision were found on the
-  *previous* physical prototype; this fix (2mm longer, J3 moved) hasn't
-  been built and tested itself yet. Sized against the user's own case
-  measurement (36.3mm clear channel), not yet confirmed hands-on with
-  the actual board.
+  *previous* physical prototype; this fix (board + J2 both 2mm, J3
+  moved, fully re-routed) hasn't been built and tested itself yet. The
+  outline is sized against the user's own case measurement (36.3mm
+  clear channel) and J1-J2 spacing against a direct user correction, not
+  yet confirmed hands-on with the actual board.
 
 ## Fits the case in `../../case/` (also WIP — see its README)

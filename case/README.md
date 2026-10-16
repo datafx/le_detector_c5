@@ -4,6 +4,11 @@
 display/XIAO/buzzer wired via breadboard jumpers — confirmed everything
 fits and works, but this is not the final case.
 
+**Based on**: [Case for 2.8" ILI9341 TFT LCD and microcontroller](https://www.printables.com/model/441958-case-for-28-ili9341-tft-lcd-and-microcontroller)
+on Printables — original case design; modifications in this repo
+(GoPro mount, USB panel cutout, ongoing depth/fit changes) are this
+project's own on top of that base.
+
 - `Extended_case.stl` / `Lid.stl` — current working revision.
 - **Width and height are final** (matched to the display's own 50×86mm
   board, with the lid already cut with a viewing window for it).

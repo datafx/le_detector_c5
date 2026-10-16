@@ -250,7 +250,10 @@ designators (J1/J2/J3/U1), nothing else, no graphics at all.
   consistency and because this board has already had two real
   orientation bugs this session (U1's mirroring, J3's pin order) - cheap
   insurance against a third one during assembly.
-- **Board title**: `LE Detector C5 by datafx`, 2.2mm text (noticeably
+- **Board title**: `LE Detector C5 by datafx Rev 2` (" Rev 2" appended
+  once this revision's fixes - board length, J2 spacing, J3 position -
+  landed, so a built board is traceable to which design it matches).
+  2.2mm text (noticeably
   larger than the 1mm connector labels), vertical along the left edge,
   top-justified. Placed on the back (B.SilkS) rather than the front -
   the display covers nearly the full front face once plugged into J1

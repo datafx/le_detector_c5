@@ -665,7 +665,7 @@
 		(layer "Edge.Cuts")
 		(uuid "9fd01d4a-4779-41a6-9976-b0adcb4bf346")
 	)
-	(gr_text "LE Detector C5 by datafx"
+	(gr_text "LE Detector C5 by datafx Rev 2"
 		(at 11 8 90)
 		(layer "B.SilkS")
 		(uuid "8f5c5e32-8e1a-4b6d-9e1f-8d5c3a2b7c4e")

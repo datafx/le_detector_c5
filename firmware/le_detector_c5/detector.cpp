@@ -28,6 +28,7 @@
 
 #include "esp_wifi.h"
 #include "esp_netif.h"
+#include "esp_event.h"
 #include "esp_idf_version.h"
 
 #include <BLEDevice.h>
@@ -338,4 +339,12 @@ void detectorInit() {
     memset(s_devices, 0, sizeof(s_devices));
     s_seenTotal = 0;
     s_lastHitMs = 0;
+
+    // The WiFi driver posts events (channel change, start/stop) to the
+    // default event loop. Arduino's WiFi library would normally create it,
+    // but we drive esp_wifi directly, so without this every channel hop
+    // logged "failed to post WiFi event ... ret=259". Nothing here listens
+    // for these events - the loop just has to exist. Created once; it
+    // survives the esp_wifi_deinit()/init() cycle of each phase switch.
+    esp_event_loop_create_default();
 }

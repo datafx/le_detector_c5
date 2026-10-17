@@ -177,6 +177,24 @@ the real AP — whether PSP in-car systems actually do that is untested in
 the field. Treat a hit here as barracks-proximity, not confirmed mobile
 detection, until that's verified.
 
+## Confirmed agencies
+
+| Agency | Status |
+|---|---|
+| Pennsylvania State Police (PSP) | Confirmed in the field by the project author |
+
+That's the only agency confirmed so far, but detection isn't tied to PSP.
+The strongest target, Axon Fleet in-car hubs, broadcast their own WiFi
+access point on 5GHz from Axon's registered MAC prefix (`00:25:DF`), and the
+detector matches that prefix rather than anything agency-specific. **Any
+agency running in-car Axon WiFi APs should be picked up the same way.** The
+same goes for the other OUI entries: they match the equipment maker, not
+the department. The PSP SSID rows are the exception, since those names are
+specific to PSP.
+
+If you've confirmed a hit on another agency, see
+[Contributing](#contributing) so it can be added here.
+
 ## How detection works
 
 A three-band phase machine — only one of WiFi-5GHz / WiFi-2.4GHz / BLE can
@@ -233,6 +251,37 @@ Everything lives in `firmware/le_detector_c5/config.h`: band/channel
 lists, sweep cadence, flash-rate endpoints (`RSSI_WEAK`/`RSSI_STRONG`,
 `FLASH_PERIOD_SLOW`/`FAST`), alert hold time, and `BUZZER_ENABLED` for
 silent bench testing.
+
+## Contributing
+
+The watchlist is only as good as the field data behind it, and the most
+useful thing you can contribute is **[Kismet](https://www.kismetwireless.net/)
+captures recorded near police vehicles**. If you can make some, get in
+touch and I'll analyze them for OUIs and SSIDs worth adding.
+
+- **More than one sample, from different areas, is much more useful than
+  one.** A single capture can't separate a department's gear from whatever
+  else happened to be nearby. Several captures from different places,
+  vehicles or agencies show what they have in common, which is what makes
+  a reliable watchlist entry.
+- **Capture both bands.** Use an adapter that covers 5GHz as well as
+  2.4GHz; the in-car gear that matters most is on 5GHz. Bluetooth is a
+  bonus if your setup supports it.
+- **Note the context** for each capture: date and time, rough location,
+  the agency, and what was nearby (parked cruiser, passing traffic,
+  barracks lot).
+- **Don't post captures publicly.** They contain the MAC addresses and
+  network names of everyone nearby, not just the police gear. Open a
+  [GitHub issue](https://github.com/datafx/le_detector_c5/issues)
+  to make contact, and we'll arrange a private way to send the files.
+- **Listen only, from where you're allowed to be.** Kismet's default
+  passive capture is all that's needed. Don't follow vehicles or get in
+  the way of anyone working.
+
+Watchlist changes land here first, with the unit test in
+`test/test_oui.cpp`, and are then copied to the
+[Waveshare port](https://github.com/datafx/le_detector_waveshare_c5). Bug
+reports and fixes are welcome as issues or pull requests.
 
 ## License
 

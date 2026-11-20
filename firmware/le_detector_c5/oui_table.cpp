@@ -89,6 +89,12 @@ extern const OuiEntry* ouiUserLookup(const uint8_t mac[6]);
 // on vehicles you care about detecting; on unfiltered general-purpose
 // patrol, its false-positive rate outweighs its signal.
 #define EXCLUDE_VENDOR_CRADLEPOINT
+//
+// AIRLINK IS EXCLUDED BY DEFAULT (2026-11-20): road testing turned up only
+// false positives and no real hits on PD vehicles. 00:14:3E is Sierra
+// Wireless's AirLink cellular router line, common in civilian fleets; it
+// has its own toggle so the other Sierra Wireless prefixes are unaffected.
+#define EXCLUDE_VENDOR_AIRLINK
 // #define EXCLUDE_VENDOR_SIERRA_WIRELESS
 // #define EXCLUDE_VENDOR_MOTOROLA
 // ---------------------------------------------------------------------------
@@ -106,7 +112,9 @@ static const OuiEntry OUI_TABLE[] = {
   { { 0x00,0x0D,0xCA,0x00,0x00 }, 24, "Tait",             CAT_RADIO,     SPEC_BROAD      },
   { { 0x00,0x0E,0x06,0x00,0x00 }, 24, "Team Simoco",      CAT_RADIO,     SPEC_BROAD      },
   { { 0x00,0x12,0xE0,0x00,0x00 }, 24, "Codan",            CAT_RADIO,     SPEC_BROAD      },
+#ifndef EXCLUDE_VENDOR_AIRLINK
   { { 0x00,0x14,0x3E,0x00,0x00 }, 24, "AirLink",          CAT_VEHICLE,   SPEC_BROAD      },
+#endif
   { { 0x00,0x14,0x91,0x00,0x00 }, 24, "Codan Radio",      CAT_RADIO,     SPEC_BROAD      },
   { { 0x00,0x15,0x94,0x00,0x00 }, 24, "BIXOLON",          CAT_OTHER,     SPEC_BROAD      },
   { { 0x00,0x16,0xED,0x00,0x00 }, 24, "Utility Inc",      CAT_BODYCAM,   SPEC_LE_ONLY    },

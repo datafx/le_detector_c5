@@ -88,6 +88,8 @@ int main() {
     expect("BIXOLON 00:15:94 (citation printer)", bixolon, "BIXOLON");
     expect("Vantiva 0C:FE:7B (disabled - school bus falsing)", vantiva, nullptr);
     expect("PRO-VISION 9C:83:BF (disabled - school bus falsing)", provision, nullptr);
+    uint8_t airlink[6]   = {0x00,0x14,0x3E,0x00,0x00,0x01};
+    expect("AirLink 00:14:3E (disabled - road-test falsing)", airlink, nullptr);
 
     printf("\n%s (%d failures)\n", fails ? "FAILURES PRESENT" : "ALL PASS", fails);
     return fails;

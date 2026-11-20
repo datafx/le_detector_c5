@@ -130,10 +130,11 @@ of sync with reality:
 A few vendors are **disabled by default** after field testing showed they
 false-positive more than they help — commented out, not deleted, so each
 is one edit away from re-enabling if that read ever turns out wrong:
-**CradlePoint**, **Peplink**, **Pepwave**, **Vantiva**, **PRO-VISION**.
-Comment a row back in (or out) to change what's active for most entries;
-CradlePoint specifically is gated by an `EXCLUDE_VENDOR_CRADLEPOINT` toggle
-at the top of `oui_table.cpp`. Run `test/test_oui.cpp` after any edit.
+**CradlePoint**, **AirLink** (`00:14:3E`), **Peplink**, **Pepwave**,
+**Vantiva**, **PRO-VISION**. Comment a row back in (or out) to change what's
+active for most entries; CradlePoint and AirLink are gated by the
+`EXCLUDE_VENDOR_CRADLEPOINT` / `EXCLUDE_VENDOR_AIRLINK` toggles at the top
+of `oui_table.cpp`. Run `test/test_oui.cpp` after any edit.
 
 Want to test a local addition before submitting it upstream? Drop it in
 `user_oui_table.cpp` instead — unsorted, just appended to.

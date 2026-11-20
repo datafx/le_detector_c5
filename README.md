@@ -179,18 +179,22 @@ detection, until that's verified.
 
 ## Confirmed agencies
 
-| Agency | Status |
-|---|---|
-| Pennsylvania State Police (PSP) | Confirmed in the field by the project author |
+| Agency | Location | Equipment |
+|---|---|---|
+| Pennsylvania State Police (PSP) | Statewide, PA | Axon |
+| Richland Township PD | Bucks County, PA | Axon |
+| Upper Macungie Township PD | Lehigh County, PA | Axon |
+| Allentown PD | Lehigh County, PA | Axon |
+| Easton PD | Northampton County, PA | WatchGuard |
 
-That's the only agency confirmed so far, but detection isn't tied to PSP.
-The strongest target, Axon Fleet in-car hubs, broadcast their own WiFi
-access point on 5GHz from Axon's registered MAC prefix (`00:25:DF`), and the
-detector matches that prefix rather than anything agency-specific. **Any
-agency running in-car Axon WiFi APs should be picked up the same way.** The
-same goes for the other OUI entries: they match the equipment maker, not
-the department. The PSP SSID rows are the exception, since those names are
-specific to PSP.
+All confirmed in the field by the project author. Detection isn't tied to
+any of these departments. The strongest target, Axon Fleet in-car hubs,
+broadcast their own WiFi access point on 5GHz from Axon's registered MAC
+prefix (`00:25:DF`), and the detector matches that prefix rather than
+anything agency-specific. **Any agency running in-car Axon WiFi APs should
+be picked up the same way.** The same goes for the other OUI entries,
+WatchGuard included: they match the equipment maker, not the department.
+The PSP SSID rows are the exception, since those names are specific to PSP.
 
 If you've confirmed a hit on another agency, see
 [Contributing](#contributing) so it can be added here.

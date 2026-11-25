@@ -96,7 +96,11 @@ extern const OuiEntry* ouiUserLookup(const uint8_t mac[6]);
 // has its own toggle so the other Sierra Wireless prefixes are unaffected.
 #define EXCLUDE_VENDOR_AIRLINK
 // #define EXCLUDE_VENDOR_SIERRA_WIRELESS
-// #define EXCLUDE_VENDOR_MOTOROLA
+//
+// MOTOROLA IS EXCLUDED BY DEFAULT (2026-11-25): road testing turned up only
+// false positives (school buses) and no real hits on PD vehicles. Motorola
+// Solutions radios/modems are common on civilian fleets too.
+#define EXCLUDE_VENDOR_MOTOROLA
 // ---------------------------------------------------------------------------
 
 static const OuiEntry OUI_TABLE[] = {

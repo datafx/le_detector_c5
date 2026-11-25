@@ -38,7 +38,9 @@ int main() {
     uint8_t fedsigOut[6] = {0x08,0x3C,0x03,0x90,0x00,0x01};   // 9x -> OUT
 
     expect("Axon 00:25:DF (anchor)",        axon,       "Axon");
-    expect("Motorola 00:04:7D",             moto,       "Motorola Sol");
+    expect("Motorola 00:04:7D (disabled - school bus falsing)", moto, nullptr);
+    uint8_t watchguard[6] = {0x00,0x1D,0x96,0x00,0x00,0x01};   // Motorola-owned, own prefix
+    expect("WatchGuard 00:1D:96 (stays on)", watchguard, "WatchGuard Vid");
     expect("Decatur 6C:18:11",              decatur,    "Decatur Elec");
     expect("first row 00:00:C3",            harrisFirst,"Harris");
     expect("last row CC:93:4A",             sierraLast, "Sierra Wireless");

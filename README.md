@@ -130,11 +130,12 @@ of sync with reality:
 A few vendors are **disabled by default** after field testing showed they
 false-positive more than they help — commented out, not deleted, so each
 is one edit away from re-enabling if that read ever turns out wrong:
-**CradlePoint**, **AirLink** (`00:14:3E`), **Peplink**, **Pepwave**,
-**Vantiva**, **PRO-VISION**. Comment a row back in (or out) to change what's
-active for most entries; CradlePoint and AirLink are gated by the
-`EXCLUDE_VENDOR_CRADLEPOINT` / `EXCLUDE_VENDOR_AIRLINK` toggles at the top
-of `oui_table.cpp`. Run `test/test_oui.cpp` after any edit.
+**CradlePoint**, **AirLink** (`00:14:3E`), **Motorola Solutions**,
+**Peplink**, **Pepwave**, **Vantiva**, **PRO-VISION**. Comment a row back in
+(or out) to change what's active for most entries; CradlePoint, AirLink and
+Motorola are gated by the `EXCLUDE_VENDOR_CRADLEPOINT` /
+`EXCLUDE_VENDOR_AIRLINK` / `EXCLUDE_VENDOR_MOTOROLA` toggles at the top of
+`oui_table.cpp`. Run `test/test_oui.cpp` after any edit.
 
 Want to test a local addition before submitting it upstream? Drop it in
 `user_oui_table.cpp` instead — unsorted, just appended to.
@@ -187,6 +188,7 @@ detection, until that's verified.
 | Upper Macungie Township PD | Lehigh County, PA | Axon |
 | Allentown PD | Lehigh County, PA | Axon |
 | Easton PD | Northampton County, PA | WatchGuard |
+| Upper Uwchlan Township PD | Chester County, PA | Axon |
 
 All confirmed in the field by the project author. Detection isn't tied to
 any of these departments. The strongest target, Axon Fleet in-car hubs,
